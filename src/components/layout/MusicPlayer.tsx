@@ -14,7 +14,7 @@ const MusicPlayer = () => {
     title: "Cosmic Waves",
     artist: "Stellar Dreams",
     cover: "https://images.unsplash.com/photo-1614149162883-504ce4d13909?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3",
-    url: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3", // Sample free music
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Updated to a reliable audio source
   };
 
   useEffect(() => {
