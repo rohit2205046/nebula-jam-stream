@@ -32,7 +32,7 @@ const Explore = () => {
             {Array.from({ length: 6 }).map((_, i) => (
               <GlassmorphicCard key={i} hoverEffect className="p-0 overflow-hidden">
                 <img 
-                  src={`https://images.unsplash.com/photo-${1550100${i}00}-${10000 + i}?auto=format&fit=crop&w=800&q=80`} 
+                  src={`https://images.unsplash.com/photo-${1490000 + i}-${100000 + i}?auto=format&fit=crop&w=800&q=80`} 
                   alt="Trending music" 
                   className="w-full aspect-square object-cover"
                 />
