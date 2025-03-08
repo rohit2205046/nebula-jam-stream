@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SongCard from "./SongCard";
 import AnimatedButton from "../ui/AnimatedButton";
+import AddSong from "./AddSong";
 import { Heart, Clock, ListMusic, Plus } from "lucide-react";
 
 // Mock data - in a real app this would come from your API/Supabase
@@ -52,25 +53,49 @@ const mockSongs = [
 ];
 
 const MusicLibrary = () => {
+  const [songs, setSongs] = useState(mockSongs);
   const [likedSongs, setLikedSongs] = useState(
     mockSongs.filter((song) => song.isLiked)
   );
+  const [recentlyPlayed, setRecentlyPlayed] = useState(
+    mockSongs.slice(0, 3)
+  );
   
   const handleToggleLike = (songId: string) => {
-    const updatedSongs = mockSongs.map((song) => {
+    const updatedSongs = songs.map((song) => {
       if (song.id === songId) {
         return { ...song, isLiked: !song.isLiked };
       }
       return song;
     });
     
-    // In a real app, you would update this in your database
+    setSongs(updatedSongs);
     setLikedSongs(updatedSongs.filter((song) => song.isLiked));
   };
   
   const handlePlaySong = (songId: string) => {
     console.log(`Playing song with ID: ${songId}`);
-    // In a real app, this would trigger the music player
+    
+    // Add to recently played
+    const songToAdd = songs.find(song => song.id === songId);
+    if (songToAdd) {
+      // Add to the beginning of the array
+      setRecentlyPlayed(prev => {
+        // Remove the song if it's already in recently played
+        const filtered = prev.filter(s => s.id !== songId);
+        // Add it to the beginning, limit to 5 songs
+        return [songToAdd, ...filtered].slice(0, 5);
+      });
+    }
+  };
+  
+  const handleAddSong = (newSong: any) => {
+    setSongs(prevSongs => [...prevSongs, newSong]);
+  };
+  
+  const createPlaylist = () => {
+    // This would create a new playlist in a real app
+    console.log("Creating new playlist");
   };
   
   return (
@@ -92,7 +117,12 @@ const MusicLibrary = () => {
             </TabsTrigger>
           </TabsList>
           
-          <AnimatedButton variant="ghost" size="sm" className="flex items-center gap-2">
+          <AnimatedButton 
+            variant="ghost" 
+            size="sm" 
+            className="flex items-center gap-2"
+            onClick={createPlaylist}
+          >
             <Plus size={16} />
             <span>New Playlist</span>
           </AnimatedButton>
@@ -100,7 +130,7 @@ const MusicLibrary = () => {
         
         <TabsContent value="all" className="mt-0 animate-fade-in">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-            {mockSongs.map((song) => (
+            {songs.map((song) => (
               <SongCard
                 key={song.id}
                 title={song.title}
@@ -132,8 +162,7 @@ const MusicLibrary = () => {
         
         <TabsContent value="recent" className="mt-0 animate-fade-in">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-            {/* In a real app, you'd show recently played songs here */}
-            {mockSongs.slice(0, 3).map((song) => (
+            {recentlyPlayed.map((song) => (
               <SongCard
                 key={song.id}
                 title={song.title}
@@ -147,6 +176,8 @@ const MusicLibrary = () => {
           </div>
         </TabsContent>
       </Tabs>
+      
+      <AddSong onAddSong={handleAddSong} />
     </div>
   );
 };

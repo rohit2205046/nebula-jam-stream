@@ -11,6 +11,7 @@ const Library = () => {
       <main className="pt-20">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl font-bold mb-8">Your Library</h1>
+          <p className="text-muted-foreground mb-6">Manage your music collection and create playlists</p>
         </div>
         <MusicLibrary />
       </main>
