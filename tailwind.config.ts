@@ -75,6 +75,19 @@ export default {
 					800: '#5b21b6',
 					900: '#4c1d95',
 					950: '#2e1065',
+				},
+				purple: {
+					50: '#faf5ff',
+					100: '#f3e8ff',
+					200: '#e9d5ff',
+					300: '#d8b4fe',
+					400: '#c084fc',
+					500: '#a855f7',
+					600: '#9333ea',
+					700: '#7e22ce',
+					800: '#6b21a8',
+					900: '#581c87',
+					950: '#3b0764',
 				}
 			},
 			borderRadius: {
@@ -108,8 +121,8 @@ export default {
 					'100%': { transform: 'translateY(0)', opacity: '1' },
 				},
 				'pulse-slow': {
-					'0%, 100%': { opacity: '1' },
-					'50%': { opacity: '0.8' },
+					'0%, 100%': { opacity: '1', transform: 'scale(1)' },
+					'50%': { opacity: '0.8', transform: 'scale(1.05)' },
 				},
 				'gradient-shift': {
 					'0%': { backgroundPosition: '0% 50%' },
@@ -119,6 +132,18 @@ export default {
 				'scale-up': {
 					'0%': { transform: 'scale(0.95)', opacity: '0' },
 					'100%': { transform: 'scale(1)', opacity: '1' },
+				},
+				'float-up': {
+					'0%': { transform: 'translateY(0)', opacity: '0' },
+					'20%': { opacity: '1' },
+					'100%': { transform: 'translateY(-20px)', opacity: '0' },
+				},
+				'heartbeat': {
+					'0%': { transform: 'scale(1)' },
+					'25%': { transform: 'scale(1.2)' },
+					'50%': { transform: 'scale(1)' },
+					'75%': { transform: 'scale(1.2)' },
+					'100%': { transform: 'scale(1)' },
 				},
 			},
 			animation: {
@@ -131,15 +156,21 @@ export default {
 				'pulse-slow': 'pulse-slow 4s ease-in-out infinite',
 				'gradient-shift': 'gradient-shift 8s ease infinite',
 				'scale-up': 'scale-up 0.3s ease-out',
+				'float-up': 'float-up 2s ease-out forwards',
+				'heartbeat': 'heartbeat 1.5s ease-in-out infinite',
 			},
 			backgroundImage: {
 				'gradient-nebula': 'linear-gradient(to right, rgba(139, 92, 246, 0.8), rgba(91, 33, 182, 0.8))',
+				'gradient-purple': 'linear-gradient(to right, rgba(167, 139, 250, 0.8), rgba(126, 34, 206, 0.8))',
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'gradient-love': 'linear-gradient(90deg, hsla(277, 75%, 84%, 1) 0%, hsla(297, 50%, 51%, 1) 100%)',
 			},
 			boxShadow: {
 				'glow': '0 0 20px rgba(139, 92, 246, 0.25)',
 				'glow-strong': '0 0 30px rgba(139, 92, 246, 0.4)',
 				'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+				'purple': '0 8px 32px 0 rgba(126, 34, 206, 0.1)',
+				'purple-glow': '0 0 20px rgba(126, 34, 206, 0.3)',
 			},
 			backdropBlur: {
 				'xs': '2px',

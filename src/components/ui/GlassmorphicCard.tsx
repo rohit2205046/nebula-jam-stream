@@ -19,10 +19,10 @@ const GlassmorphicCard = ({
   return (
     <div
       className={cn(
-        "rounded-xl p-4 transition-all duration-300 backdrop-blur-md",
-        variant === "light" ? "glass" : "glass-dark",
+        "rounded-xl p-4 transition-all duration-300 backdrop-blur-md relative",
+        variant === "light" ? "glass-purple" : "glass-purple-dark",
         hoverEffect &&
-          "hover:shadow-glow hover:translate-y-[-2px] cursor-pointer",
+          "hover:shadow-purple-glow hover:translate-y-[-2px] cursor-pointer",
         className
       )}
       {...props}
