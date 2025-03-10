@@ -10,6 +10,7 @@ interface SongCardProps {
   isLiked?: boolean;
   onPlay?: () => void;
   onToggleLike?: () => void;
+  audioUrl?: string;
 }
 
 const SongCard: React.FC<SongCardProps> = ({
@@ -19,6 +20,7 @@ const SongCard: React.FC<SongCardProps> = ({
   isLiked = false,
   onPlay,
   onToggleLike,
+  audioUrl,
 }) => {
   return (
     <GlassmorphicCard

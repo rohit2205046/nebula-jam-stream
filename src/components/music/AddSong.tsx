@@ -12,6 +12,7 @@ interface AddSongProps {
     title: string; 
     artist: string; 
     coverImage: string;
+    audioUrl: string;
     isLiked: boolean;
   }) => void;
 }
@@ -22,12 +23,16 @@ const AddSong: React.FC<AddSongProps> = ({ onAddSong }) => {
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
   const [coverImage, setCoverImage] = useState("");
+  const [audioUrl, setAudioUrl] = useState("");
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Use a default cover image if none is provided
     const finalCoverImage = coverImage || "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3";
+    
+    // Use a default audio URL if none is provided
+    const finalAudioUrl = audioUrl || "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
     
     // Generate a random ID
     const newId = Date.now().toString();
@@ -38,6 +43,7 @@ const AddSong: React.FC<AddSongProps> = ({ onAddSong }) => {
       title,
       artist,
       coverImage: finalCoverImage,
+      audioUrl: finalAudioUrl,
       isLiked: false,
     };
     
@@ -48,6 +54,7 @@ const AddSong: React.FC<AddSongProps> = ({ onAddSong }) => {
     setTitle("");
     setArtist("");
     setCoverImage("");
+    setAudioUrl("");
     setIsFormOpen(false);
     
     // Show success toast
@@ -101,6 +108,15 @@ const AddSong: React.FC<AddSongProps> = ({ onAddSong }) => {
             placeholder="Cover image URL (optional)"
             value={coverImage}
             onChange={(e) => setCoverImage(e.target.value)}
+            className="w-full"
+          />
+        </div>
+        
+        <div>
+          <Input
+            placeholder="Audio URL (optional)"
+            value={audioUrl}
+            onChange={(e) => setAudioUrl(e.target.value)}
             className="w-full"
           />
         </div>
