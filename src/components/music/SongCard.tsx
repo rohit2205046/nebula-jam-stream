@@ -22,6 +22,26 @@ const SongCard: React.FC<SongCardProps> = ({
   onToggleLike,
   audioUrl,
 }) => {
+  const handlePlay = () => {
+    if (onPlay) {
+      onPlay();
+    } else if (audioUrl) {
+      // Create a custom event to play this song directly
+      const songData = {
+        id: Math.random().toString(36).substring(2, 9), // Generate random ID if not provided
+        title,
+        artist,
+        coverImage,
+        audioUrl,
+        isLiked
+      };
+      
+      window.dispatchEvent(new CustomEvent('play-song', { 
+        detail: songData 
+      }));
+    }
+  };
+
   return (
     <GlassmorphicCard
       className="w-full h-full transition-all duration-300 group"
@@ -35,7 +55,7 @@ const SongCard: React.FC<SongCardProps> = ({
         />
         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
           <button
-            onClick={onPlay}
+            onClick={handlePlay}
             className="w-12 h-12 bg-nebula-600 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 hover:bg-nebula-700 hover:scale-105 transition-all duration-300 shadow-glow"
           >
             <Play size={20} className="ml-1" />
