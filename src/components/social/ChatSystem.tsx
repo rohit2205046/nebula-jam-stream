@@ -1,8 +1,10 @@
 
 import React, { useState, useRef, useEffect } from "react";
-import { Send, User } from "lucide-react";
+import { Send, User, ChevronLeft, MoreVertical, Phone, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import GlassmorphicCard from "@/components/ui/GlassmorphicCard";
+import { useMediaQuery } from "@/hooks/use-mobile";
 
 interface Message {
   id: string;
@@ -13,8 +15,10 @@ interface Message {
 }
 
 const ChatSystem = () => {
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const [currentChat, setCurrentChat] = useState<string>("friend1");
   const [message, setMessage] = useState("");
+  const [showChatList, setShowChatList] = useState(!isMobile);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Mock chat data
@@ -110,6 +114,11 @@ const ChatSystem = () => {
     }
   });
 
+  // Handle responsive view
+  useEffect(() => {
+    setShowChatList(!isMobile);
+  }, [isMobile]);
+
   useEffect(() => {
     scrollToBottom();
   }, [currentChat, chats]);
@@ -177,137 +186,170 @@ const ChatSystem = () => {
   };
 
   return (
-    <div className="flex h-[60vh] max-h-[600px]">
+    <div className="flex h-[60vh] max-h-[600px] relative">
       {/* Chat List */}
-      <div className="w-1/3 border-r border-border overflow-y-auto">
-        {Object.entries(chats).map(([chatId, chat]) => (
-          <div 
-            key={chatId}
-            onClick={() => setCurrentChat(chatId)}
-            className={`flex items-center gap-3 p-3 cursor-pointer transition-colors ${
-              currentChat === chatId ? "bg-purple-800/10" : "hover:bg-secondary/50"
-            }`}
-          >
-            <div className="relative">
-              <div className="w-10 h-10 rounded-full overflow-hidden">
+      {showChatList && (
+        <div className="w-full md:w-1/3 border-r border-border overflow-y-auto">
+          {Object.entries(chats).map(([chatId, chat]) => (
+            <div 
+              key={chatId}
+              onClick={() => {
+                setCurrentChat(chatId);
+                if (isMobile) setShowChatList(false);
+              }}
+              className={`flex items-center gap-3 p-3 cursor-pointer transition-colors ${
+                currentChat === chatId ? "bg-purple-800/10" : "hover:bg-secondary/50"
+              }`}
+            >
+              <div className="relative">
+                <div className="w-10 h-10 rounded-full overflow-hidden">
+                  <img 
+                    src={chat.friend.avatar} 
+                    alt={chat.friend.name} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <span className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-background ${
+                  chat.friend.status === 'online' ? 'bg-green-500' : 
+                  chat.friend.status === 'listening' ? 'bg-purple-500 animate-pulse' : 
+                  'bg-gray-400'
+                }`}></span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{chat.friend.name}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {chat.messages.length > 0 
+                    ? `${chat.messages[chat.messages.length - 1].sender === "You" ? "You: " : ""}${chat.messages[chat.messages.length - 1].content}`
+                    : "Start a conversation"}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {/* Chat Window */}
+      {(!isMobile || !showChatList) && (
+        <div className="flex-1 flex flex-col">
+          {/* Chat Header */}
+          <div className="p-3 border-b border-border flex items-center justify-between sticky top-0 bg-background">
+            <div className="flex items-center gap-3">
+              {isMobile && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setShowChatList(true)}
+                  className="mr-1"
+                >
+                  <ChevronLeft size={20} />
+                </Button>
+              )}
+              <div className="w-8 h-8 rounded-full overflow-hidden">
                 <img 
-                  src={chat.friend.avatar} 
-                  alt={chat.friend.name} 
+                  src={chats[currentChat].friend.avatar} 
+                  alt={chats[currentChat].friend.name}
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-background ${
-                chat.friend.status === 'online' ? 'bg-green-500' : 
-                chat.friend.status === 'listening' ? 'bg-purple-500 animate-pulse' : 
-                'bg-gray-400'
-              }`}></span>
+              <div>
+                <p className="font-medium">{chats[currentChat].friend.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {chats[currentChat].friend.status === 'online' ? 'Online' : 
+                   chats[currentChat].friend.status === 'listening' ? 'Listening to music' : 
+                   'Offline'}
+                </p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium truncate">{chat.friend.name}</p>
-              <p className="text-xs text-muted-foreground truncate">
-                {chat.messages.length > 0 
-                  ? `${chat.messages[chat.messages.length - 1].sender === "You" ? "You: " : ""}${chat.messages[chat.messages.length - 1].content}`
-                  : "Start a conversation"}
-              </p>
+            <div className="flex space-x-1">
+              <Button variant="ghost" size="icon" className="text-purple-600">
+                <Phone size={18} />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-purple-600">
+                <Video size={18} />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <MoreVertical size={18} />
+              </Button>
             </div>
           </div>
-        ))}
-      </div>
-      
-      {/* Chat Window */}
-      <div className="flex-1 flex flex-col">
-        {/* Chat Header */}
-        <div className="p-3 border-b border-border flex items-center gap-3 sticky top-0 bg-background">
-          <div className="w-8 h-8 rounded-full overflow-hidden">
-            <img 
-              src={chats[currentChat].friend.avatar} 
-              alt={chats[currentChat].friend.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div>
-            <p className="font-medium">{chats[currentChat].friend.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {chats[currentChat].friend.status === 'online' ? 'Online' : 
-               chats[currentChat].friend.status === 'listening' ? 'Listening to music' : 
-               'Offline'}
-            </p>
-          </div>
-        </div>
-        
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {chats[currentChat].messages.length > 0 ? (
-            chats[currentChat].messages.map((msg) => (
-              <div 
-                key={msg.id} 
-                className={`flex ${msg.isMe ? "justify-end" : "justify-start"}`}
-              >
-                <div className={`max-w-[75%] ${msg.isMe ? "order-2" : "order-1"}`}>
-                  {!msg.isMe && (
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-6 h-6 rounded-full overflow-hidden">
-                        <img 
-                          src={chats[currentChat].friend.avatar} 
-                          alt={msg.sender}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <span className="text-xs font-medium">{msg.sender}</span>
-                    </div>
-                  )}
-                  <div 
-                    className={`rounded-xl p-3 ${
-                      msg.isMe 
-                        ? "bg-purple-800 text-white"
-                        : "bg-secondary text-foreground"
-                    }`}
+          
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-pattern">
+            {chats[currentChat].messages.length > 0 ? (
+              chats[currentChat].messages.map((msg) => (
+                <div 
+                  key={msg.id} 
+                  className={`flex ${msg.isMe ? "justify-end" : "justify-start"}`}
+                >
+                  <GlassmorphicCard
+                    className={`max-w-[75%] p-0 overflow-hidden ${msg.isMe ? "order-2" : "order-1"}`}
+                    variant={msg.isMe ? "dark" : "light"}
                   >
-                    <p>{msg.content}</p>
-                    <p className={`text-xs mt-1 text-right ${
-                      msg.isMe ? "text-purple-100" : "text-muted-foreground"
-                    }`}>
-                      {formatTime(msg.timestamp)}
-                    </p>
-                  </div>
+                    {!msg.isMe && (
+                      <div className="flex items-center gap-2 mb-1 px-3 pt-2">
+                        <div className="w-6 h-6 rounded-full overflow-hidden">
+                          <img 
+                            src={chats[currentChat].friend.avatar} 
+                            alt={msg.sender}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <span className="text-xs font-medium">{msg.sender}</span>
+                      </div>
+                    )}
+                    <div 
+                      className={`p-3 ${
+                        msg.isMe 
+                          ? "bg-purple-800 text-white rounded-tl-xl"
+                          : "bg-secondary text-foreground rounded-tr-xl"
+                      }`}
+                    >
+                      <p>{msg.content}</p>
+                      <p className={`text-xs mt-1 text-right ${
+                        msg.isMe ? "text-purple-100" : "text-muted-foreground"
+                      }`}>
+                        {formatTime(msg.timestamp)}
+                      </p>
+                    </div>
+                  </GlassmorphicCard>
+                </div>
+              ))
+            ) : (
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <User className="h-12 w-12 mx-auto mb-3" />
+                  <p>No messages yet</p>
+                  <p className="text-sm">Send a message to start chatting</p>
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="h-full flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <User className="h-12 w-12 mx-auto mb-3" />
-                <p>No messages yet</p>
-                <p className="text-sm">Send a message to start chatting</p>
-              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+          
+          {/* Message Input */}
+          <div className="p-3 border-t border-border">
+            <div className="flex gap-2">
+              <Input 
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Type a message..."
+                className="bg-secondary/50"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSendMessage();
+                  }
+                }}
+              />
+              <Button 
+                onClick={handleSendMessage}
+                className="bg-purple-800 hover:bg-purple-700"
+              >
+                <Send size={16} />
+              </Button>
             </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-        
-        {/* Message Input */}
-        <div className="p-3 border-t border-border">
-          <div className="flex gap-2">
-            <Input 
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type a message..."
-              className="bg-secondary/50"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSendMessage();
-                }
-              }}
-            />
-            <Button 
-              onClick={handleSendMessage}
-              className="bg-purple-800 hover:bg-purple-700"
-            >
-              <Send size={16} />
-            </Button>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

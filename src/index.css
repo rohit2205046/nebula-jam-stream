@@ -206,4 +206,30 @@
       opacity: 1;
     }
   }
+
+  .bg-pattern {
+    background-color: rgba(0, 0, 0, 0.03);
+    background-image: 
+      radial-gradient(rgba(106, 27, 154, 0.1) 2px, transparent 2px),
+      radial-gradient(rgba(156, 39, 176, 0.1) 2px, transparent 2px);
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
+  }
+
+  .dark .bg-pattern {
+    background-color: rgba(0, 0, 0, 0.2);
+    background-image: 
+      radial-gradient(rgba(106, 27, 154, 0.2) 2px, transparent 2px),
+      radial-gradient(rgba(156, 39, 176, 0.2) 2px, transparent 2px);
+  }
+
+  /* Mobile-friendly adjustments */
+  @media (max-width: 640px) {
+    .modal-mobile {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      max-height: 100vh;
+    }
+  }
 }

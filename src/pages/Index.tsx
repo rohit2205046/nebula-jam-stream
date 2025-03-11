@@ -1,44 +1,77 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import MusicLibrary from "@/components/music/MusicLibrary";
 import MusicPlayer from "@/components/layout/MusicPlayer";
-import { MessageSquare, Music, Play } from "lucide-react";
+import { MessageSquare, Music, Play, Search } from "lucide-react";
 import ChatModal from "@/components/social/ChatModal";
+import { Input } from "@/components/ui/input";
 
 const Index = () => {
   const [chatOpen, setChatOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
+
+  // Toggle theme function
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+  };
+
+  // Set initial theme
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#1A1F2C] text-white overflow-hidden">
+    <div className={`min-h-screen ${theme === "dark" ? "bg-[#1A1F2C]" : "bg-[#f5f3ff]"} text-foreground overflow-hidden transition-colors duration-300`}>
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden z-0">
-        <div className="absolute top-[10%] left-[20%] w-72 h-72 rounded-full bg-[#6A1B9A]/10 blur-[100px] animate-pulse-slow"></div>
-        <div className="absolute bottom-[30%] right-[10%] w-80 h-80 rounded-full bg-[#6A1B9A]/15 blur-[120px] animate-pulse-slow animate-delay-300"></div>
-        <div className="absolute top-[40%] right-[30%] w-40 h-40 rounded-full bg-[#9C27B0]/10 blur-[80px] animate-pulse-slow animate-delay-500"></div>
-        <div className="absolute bottom-[10%] left-[5%] w-60 h-60 rounded-full bg-[#6A1B9A]/10 blur-[90px] animate-pulse-slow animate-delay-200"></div>
+        <div className={`absolute top-[10%] left-[20%] w-72 h-72 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/10" : "bg-[#9C27B0]/5"} blur-[100px] animate-pulse-slow`}></div>
+        <div className={`absolute bottom-[30%] right-[10%] w-80 h-80 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/15" : "bg-[#9C27B0]/10"} blur-[120px] animate-pulse-slow animate-delay-300`}></div>
+        <div className={`absolute top-[40%] right-[30%] w-40 h-40 rounded-full ${theme === "dark" ? "bg-[#9C27B0]/10" : "bg-[#6A1B9A]/5"} blur-[80px] animate-pulse-slow animate-delay-500`}></div>
+        <div className={`absolute bottom-[10%] left-[5%] w-60 h-60 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/10" : "bg-[#9C27B0]/5"} blur-[90px] animate-pulse-slow animate-delay-200`}></div>
         
-        {/* Star-like elements */}
-        <div className="absolute top-[15%] left-[40%] w-1 h-1 rounded-full bg-white animate-pulse-slow"></div>
-        <div className="absolute top-[25%] left-[80%] w-1 h-1 rounded-full bg-white animate-pulse-slow animate-delay-300"></div>
-        <div className="absolute top-[60%] left-[30%] w-1 h-1 rounded-full bg-white animate-pulse-slow animate-delay-400"></div>
-        <div className="absolute top-[75%] left-[70%] w-1 h-1 rounded-full bg-white animate-pulse-slow animate-delay-200"></div>
-        <div className="absolute top-[85%] left-[20%] w-1 h-1 rounded-full bg-white animate-pulse-slow animate-delay-100"></div>
+        {/* Star-like elements - only in dark theme */}
+        {theme === "dark" && (
+          <>
+            <div className="absolute top-[15%] left-[40%] w-1 h-1 rounded-full bg-white animate-pulse-slow"></div>
+            <div className="absolute top-[25%] left-[80%] w-1 h-1 rounded-full bg-white animate-pulse-slow animate-delay-300"></div>
+            <div className="absolute top-[60%] left-[30%] w-1 h-1 rounded-full bg-white animate-pulse-slow animate-delay-400"></div>
+            <div className="absolute top-[75%] left-[70%] w-1 h-1 rounded-full bg-white animate-pulse-slow animate-delay-200"></div>
+            <div className="absolute top-[85%] left-[20%] w-1 h-1 rounded-full bg-white animate-pulse-slow animate-delay-100"></div>
+          </>
+        )}
       </div>
       
-      <Navbar />
+      <Navbar theme={theme} toggleTheme={toggleTheme} />
       
       <main className="relative z-10 pt-24 pb-32 px-4">
+        {/* Search Bar */}
+        <div className="mb-6 max-w-md mx-auto">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              type="text"
+              placeholder="Search for songs, artists or playlists..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`pl-9 ${theme === "dark" ? "bg-[#403E43]/60 backdrop-blur-md text-white" : "bg-white/80 backdrop-blur-md text-gray-800"} rounded-full border border-primary/20 focus:border-primary focus:ring-1 focus:ring-primary`}
+            />
+          </div>
+        </div>
+
         <section className="mb-8">
-          <h1 className="text-2xl font-bold mb-4">Good evening</h1>
+          <h1 className="text-2xl font-bold mb-4 purple-gradient-text">Good evening</h1>
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#403E43]/60 backdrop-blur-md p-3 rounded-lg flex items-center space-x-3 cursor-pointer hover:bg-[#403E43]/80 transition-colors">
+            <div className={`${theme === "dark" ? "bg-[#403E43]/60" : "bg-white/70"} backdrop-blur-md p-3 rounded-lg flex items-center space-x-3 cursor-pointer hover:bg-[#403E43]/80 transition-colors`}>
               <div className="w-12 h-12 rounded bg-purple-800/50 flex items-center justify-center">
                 <Music className="w-6 h-6 text-white" />
               </div>
               <span className="font-medium">Liked Songs</span>
             </div>
-            <div className="bg-[#403E43]/60 backdrop-blur-md p-3 rounded-lg flex items-center space-x-3 cursor-pointer hover:bg-[#403E43]/80 transition-colors">
+            <div className={`${theme === "dark" ? "bg-[#403E43]/60" : "bg-white/70"} backdrop-blur-md p-3 rounded-lg flex items-center space-x-3 cursor-pointer hover:bg-[#403E43]/80 transition-colors`}>
               <div className="w-12 h-12 rounded bg-gradient-to-br from-[#6A1B9A] to-[#9C27B0] flex items-center justify-center">
                 <Music className="w-6 h-6 text-white" />
               </div>
@@ -48,7 +81,7 @@ const Index = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-xl font-bold mb-4">Recently played</h2>
+          <h2 className="text-xl font-bold mb-4 purple-gradient-text">Recently played</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((item) => (
               <div key={item} className="flex flex-col items-center text-center">
