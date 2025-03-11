@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -75,6 +74,9 @@ export default {
 					800: '#5b21b6',
 					900: '#4c1d95',
 					950: '#2e1065',
+				},
+				purple: {
+					800: '#5b21b6',
 				}
 			},
 			borderRadius: {
@@ -120,6 +122,22 @@ export default {
 					'0%': { transform: 'scale(0.95)', opacity: '0' },
 					'100%': { transform: 'scale(1)', opacity: '1' },
 				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-10px)' },
+				},
+				'pulse-glow': {
+					'0%, 100%': { boxShadow: '0 0 15px rgba(91, 33, 182, 0.7)' },
+					'50%': { boxShadow: '0 0 30px rgba(91, 33, 182, 0.9)' },
+				},
+				'rotate-slow': {
+					'0%': { transform: 'rotate(0deg)' },
+					'100%': { transform: 'rotate(360deg)' },
+				},
+				'bounce-subtle': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-5px)' },
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -131,15 +149,22 @@ export default {
 				'pulse-slow': 'pulse-slow 4s ease-in-out infinite',
 				'gradient-shift': 'gradient-shift 8s ease infinite',
 				'scale-up': 'scale-up 0.3s ease-out',
+				'float': 'float 6s ease-in-out infinite',
+				'pulse-glow': 'pulse-glow 4s ease-in-out infinite',
+				'rotate-slow': 'rotate-slow 12s linear infinite',
+				'bounce-subtle': 'bounce-subtle 2s ease-in-out infinite',
 			},
 			backgroundImage: {
 				'gradient-nebula': 'linear-gradient(to right, rgba(139, 92, 246, 0.8), rgba(91, 33, 182, 0.8))',
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'gradient-purple': 'linear-gradient(to right, rgba(91, 33, 182, 0.8), rgba(124, 58, 237, 0.8))',
 			},
 			boxShadow: {
 				'glow': '0 0 20px rgba(139, 92, 246, 0.25)',
 				'glow-strong': '0 0 30px rgba(139, 92, 246, 0.4)',
 				'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+				'purple-glow': '0 0 20px rgba(91, 33, 182, 0.5)',
+				'purple-glow-strong': '0 0 30px rgba(91, 33, 182, 0.7)',
 			},
 			backdropBlur: {
 				'xs': '2px',

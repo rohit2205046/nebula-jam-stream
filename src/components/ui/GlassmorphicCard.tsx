@@ -7,6 +7,7 @@ interface GlassmorphicCardProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   hoverEffect?: boolean;
   variant?: "light" | "dark";
+  pulseEffect?: boolean;
 }
 
 const GlassmorphicCard = ({
@@ -14,6 +15,7 @@ const GlassmorphicCard = ({
   className,
   hoverEffect = false,
   variant = "light",
+  pulseEffect = false,
   ...props
 }: GlassmorphicCardProps) => {
   return (
@@ -22,7 +24,8 @@ const GlassmorphicCard = ({
         "rounded-xl p-4 transition-all duration-300 backdrop-blur-md",
         variant === "light" ? "glass" : "glass-dark",
         hoverEffect &&
-          "hover:shadow-glow hover:translate-y-[-2px] cursor-pointer",
+          "hover:shadow-purple-glow-strong hover:translate-y-[-2px] cursor-pointer",
+        pulseEffect && "animate-pulse-glow",
         className
       )}
       {...props}
