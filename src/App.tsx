@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Explore from "./pages/Explore";
 import Library from "./pages/Library";
 import Reversal from "./pages/Reversal";
+import Referral from "./pages/Referral";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/explore" element={<Explore />} />
           <Route path="/library" element={<Library />} />
           <Route path="/reversal" element={<Reversal />} />
+          <Route path="/referral" element={<Referral />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

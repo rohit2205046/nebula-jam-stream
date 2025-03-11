@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, Bell, User, Menu, X, Zap, RotateCcw, Compass, Music, BookOpen } from "lucide-react";
+import { Search, Bell, Menu, X, Zap, RotateCcw, Compass, Music, BookOpen, Share2 } from "lucide-react";
 import AnimatedButton from "@/components/ui/AnimatedButton";
 
 const Navbar = () => {
@@ -26,7 +26,7 @@ const Navbar = () => {
     <nav
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-purple-800/10 backdrop-blur-md border-b border-purple-500/10 shadow-purple-glow py-3"
+          ? "bg-[#6A1B9A]/10 backdrop-blur-md border-b border-[#6A1B9A]/10 shadow-purple-glow py-3"
           : "py-5"
       }`}
     >
@@ -37,39 +37,43 @@ const Navbar = () => {
             className="text-2xl font-bold purple-gradient-text animate-pulse-slow relative"
           >
             Nebula
-            <span className="absolute -inset-1 bg-purple-500/20 blur-xl rounded-full -z-10"></span>
+            <span className="absolute -inset-1 bg-[#6A1B9A]/20 blur-xl rounded-full -z-10"></span>
           </Link>
         </div>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
-          <Link to="/" className="nav-link text-foreground hover:text-purple-800 transition-colors flex items-center gap-2">
+          <Link to="/" className="nav-link text-foreground hover:text-[#6A1B9A] transition-colors flex items-center gap-2">
             <Zap size={16} className="animate-pulse-slow" />
             <span>Home</span>
           </Link>
-          <Link to="/explore" className="nav-link text-foreground hover:text-purple-800 transition-colors flex items-center gap-2">
+          <Link to="/explore" className="nav-link text-foreground hover:text-[#6A1B9A] transition-colors flex items-center gap-2">
             <Compass size={16} className="animate-bounce-subtle" />
             <span>Explore</span>
           </Link>
-          <Link to="/library" className="nav-link text-foreground hover:text-purple-800 transition-colors flex items-center gap-2">
+          <Link to="/library" className="nav-link text-foreground hover:text-[#6A1B9A] transition-colors flex items-center gap-2">
             <Music size={16} className="animate-float" />
             <span>Library</span>
           </Link>
-          <Link to="/reversal" className="nav-link text-foreground hover:text-purple-800 transition-colors flex items-center gap-2">
+          <Link to="/reversal" className="nav-link text-foreground hover:text-[#6A1B9A] transition-colors flex items-center gap-2">
             <RotateCcw size={16} className="animate-rotate-slow" />
             <span>Reversal</span>
+          </Link>
+          <Link to="/referral" className="nav-link text-foreground hover:text-[#6A1B9A] transition-colors flex items-center gap-2">
+            <Share2 size={16} className="animate-pulse" />
+            <span>Referral</span>
           </Link>
         </div>
 
         {/* Right Side Actions */}
         <div className="hidden md:flex items-center space-x-4">
-          <button className="text-foreground hover:text-purple-800 transition-colors">
+          <button className="text-foreground hover:text-[#6A1B9A] transition-colors">
             <Search size={20} />
           </button>
-          <button className="text-foreground hover:text-purple-800 transition-colors">
+          <button className="text-foreground hover:text-[#6A1B9A] transition-colors">
             <Bell size={20} />
           </button>
-          <AnimatedButton variant="primary" size="sm" className="bg-purple-800 hover:bg-purple-700 shadow-purple-glow">
+          <AnimatedButton variant="primary" size="sm" className="bg-[#6A1B9A] hover:bg-[#6A1B9A]/80 shadow-purple-glow">
             Sign In
           </AnimatedButton>
         </div>
@@ -95,7 +99,7 @@ const Navbar = () => {
             className="text-xl font-medium flex items-center gap-2"
             onClick={() => setMenuOpen(false)}
           >
-            <Zap size={20} className="text-purple-800" />
+            <Zap size={20} className="text-[#6A1B9A]" />
             <span>Home</span>
           </Link>
           <Link
@@ -103,7 +107,7 @@ const Navbar = () => {
             className="text-xl font-medium flex items-center gap-2"
             onClick={() => setMenuOpen(false)}
           >
-            <Compass size={20} className="text-purple-800" />
+            <Compass size={20} className="text-[#6A1B9A]" />
             <span>Explore</span>
           </Link>
           <Link
@@ -111,7 +115,7 @@ const Navbar = () => {
             className="text-xl font-medium flex items-center gap-2"
             onClick={() => setMenuOpen(false)}
           >
-            <Music size={20} className="text-purple-800" />
+            <Music size={20} className="text-[#6A1B9A]" />
             <span>Library</span>
           </Link>
           <Link
@@ -119,11 +123,19 @@ const Navbar = () => {
             className="text-xl font-medium flex items-center gap-2"
             onClick={() => setMenuOpen(false)}
           >
-            <RotateCcw size={20} className="text-purple-800" />
+            <RotateCcw size={20} className="text-[#6A1B9A]" />
             <span>Reversal</span>
           </Link>
-          <div className="pt-6 border-t border-purple-200">
-            <AnimatedButton variant="primary" className="w-full bg-purple-800 hover:bg-purple-700">
+          <Link
+            to="/referral"
+            className="text-xl font-medium flex items-center gap-2"
+            onClick={() => setMenuOpen(false)}
+          >
+            <Share2 size={20} className="text-[#6A1B9A]" />
+            <span>Referral</span>
+          </Link>
+          <div className="pt-6 border-t border-[#6A1B9A]/20">
+            <AnimatedButton variant="primary" className="w-full bg-[#6A1B9A] hover:bg-[#6A1B9A]/80">
               Sign In
             </AnimatedButton>
           </div>

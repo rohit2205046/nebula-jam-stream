@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
-    --primary: 271 81% 42%;
+    --primary: 291 76% 35%;
     --primary-foreground: 0 0% 98%;
 
     --secondary: 273 30% 95%;
@@ -31,7 +31,7 @@
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 271 81% 42%;
+    --ring: 291 76% 35%;
 
     --radius: 0.75rem;
 
@@ -42,7 +42,7 @@
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 271 81% 42%;
+    --sidebar-ring: 291 76% 35%;
   }
 
   .dark {
@@ -55,7 +55,7 @@
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 271 81% 42%;
+    --primary: 291 76% 35%;
     --primary-foreground: 0 0% 98%;
 
     --secondary: 240 3.7% 15.9%;
@@ -72,7 +72,7 @@
 
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 271 81% 42%;
+    --ring: 291 76% 35%;
   }
 }
 
@@ -105,28 +105,28 @@
 
 @layer utilities {
   .glass {
-    @apply backdrop-blur-md bg-white/10 border border-white/20 shadow-purple-glow;
+    @apply backdrop-blur-md bg-white/10 border border-white/20 shadow-[#6A1B9A]/20 shadow-md;
   }
   
   .glass-dark {
-    @apply backdrop-blur-md bg-black/20 border border-white/10 shadow-purple-glow;
+    @apply backdrop-blur-md bg-black/20 border border-white/10 shadow-[#6A1B9A]/20 shadow-md;
   }
   
   .text-glow {
-    text-shadow: 0 0 10px rgba(91, 33, 182, 0.5);
+    text-shadow: 0 0 10px rgba(106, 27, 154, 0.5);
   }
   
   .purple-gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-800 to-purple-500;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#6A1B9A] to-[#9C27B0];
   }
 
   .futuristic-border {
-    @apply border border-purple-500/30 relative overflow-hidden;
+    @apply border border-[#6A1B9A]/30 relative overflow-hidden;
   }
 
   .futuristic-border::after {
     content: '';
-    @apply absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-purple-800 animate-rotate-slow opacity-70;
+    @apply absolute -inset-0.5 bg-gradient-to-r from-[#6A1B9A] to-[#9C27B0] animate-rotate-slow opacity-70;
     z-index: -1;
   }
   
@@ -148,5 +148,44 @@
   
   .animate-delay-500 {
     animation-delay: 500ms;
+  }
+
+  .love-bounce {
+    animation: love-bounce 2s infinite;
+  }
+
+  @keyframes love-bounce {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+
+  .love-float {
+    animation: love-float 4s ease-in-out infinite;
+  }
+
+  @keyframes love-float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px) scale(1.05);
+    }
+  }
+
+  .love-pulse {
+    animation: love-pulse 3s infinite;
+  }
+
+  @keyframes love-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(106, 27, 154, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 15px rgba(106, 27, 154, 0);
+    }
   }
 }

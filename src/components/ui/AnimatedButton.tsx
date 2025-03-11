@@ -29,10 +29,10 @@ const AnimatedButton = ({
   
   // Variant styles
   const variantStyles = {
-    primary: `bg-nebula-600 text-white hover:bg-nebula-700 active:bg-nebula-800 ${isActive ? "shadow-glow" : ""}`,
+    primary: `bg-[#6A1B9A] text-white hover:bg-[#6A1B9A]/90 active:bg-[#6A1B9A]/80 ${isActive ? "shadow-[#6A1B9A]/30 shadow-lg" : ""}`,
     secondary: `bg-secondary text-secondary-foreground hover:bg-secondary/80 ${isActive ? "bg-secondary/90" : ""}`,
     ghost: `bg-transparent hover:bg-secondary ${isActive ? "bg-secondary/50" : ""}`,
-    link: "bg-transparent underline-offset-4 hover:underline text-nebula-600",
+    link: "bg-transparent underline-offset-4 hover:underline text-[#6A1B9A]",
   };
   
   return (

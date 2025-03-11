@@ -44,7 +44,7 @@ const SongCard: React.FC<SongCardProps> = ({
 
   return (
     <GlassmorphicCard
-      className="w-full h-full transition-all duration-300 group"
+      className="w-full h-full transition-all duration-300 group love-pulse"
       hoverEffect={true}
     >
       <div className="relative aspect-square overflow-hidden rounded-lg mb-3">
@@ -56,7 +56,7 @@ const SongCard: React.FC<SongCardProps> = ({
         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
           <button
             onClick={handlePlay}
-            className="w-12 h-12 bg-purple-800 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 hover:bg-purple-700 hover:scale-105 transition-all duration-300 shadow-purple-glow animate-bounce-subtle"
+            className="w-12 h-12 bg-[#6A1B9A] rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 hover:bg-[#6A1B9A]/80 hover:scale-105 transition-all duration-300 shadow-[#6A1B9A]/40 shadow-md animate-bounce-subtle"
           >
             <Play size={20} className="ml-1" />
           </button>
@@ -70,7 +70,7 @@ const SongCard: React.FC<SongCardProps> = ({
         <button
           onClick={onToggleLike}
           className={`mt-1 transition-all duration-300 ${
-            isLiked ? "text-red-500" : "text-muted-foreground hover:text-red-500"
+            isLiked ? "text-red-500 love-bounce" : "text-muted-foreground hover:text-red-500"
           }`}
         >
           <Heart size={16} fill={isLiked ? "currentColor" : "none"} className={isLiked ? "animate-pulse" : ""} />
