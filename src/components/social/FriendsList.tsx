@@ -1,25 +1,16 @@
 
 import React, { useState } from "react";
-import { UserPlus, Search, Music, X, Check, UserRoundPlus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-
-interface Friend {
-  id: string;
-  name: string;
-  avatar: string;
-  status: "online" | "offline" | "listening";
-  song?: {
-    title: string;
-    artist: string;
-  };
-}
+import FriendSearch from "./FriendSearch";
+import FriendRequests from "./FriendRequests";
+import FriendItem from "./FriendItem";
+import EmptyFriendsList from "./EmptyFriendsList";
+import { Friend, FriendRequest } from "./types";
 
 const FriendsList = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
-  const [friendRequests, setFriendRequests] = useState<{id: string, name: string, avatar: string}[]>([
+  const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([
     {
       id: "req1",
       name: "Alex Johnson",
@@ -98,139 +89,42 @@ const FriendsList = () => {
     }
   };
 
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+  };
+
   const filteredFriends = friends.filter(friend => 
     friend.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search or add friends..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-secondary/50"
-          />
-        </div>
-        <Button 
-          onClick={addNewFriend}
-          className="bg-purple-800 hover:bg-purple-700"
-        >
-          <UserPlus size={16} />
-        </Button>
-      </div>
+      <FriendSearch 
+        searchQuery={searchQuery}
+        onSearchChange={handleSearchChange}
+        onAddNewFriend={addNewFriend}
+      />
 
-      {friendRequests.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-sm font-medium text-muted-foreground">Friend Requests</h3>
-          <div className="space-y-2">
-            {friendRequests.map(request => (
-              <div 
-                key={request.id} 
-                className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full overflow-hidden">
-                    <img 
-                      src={request.avatar} 
-                      alt={request.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <span className="font-medium">{request.name}</span>
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => acceptFriendRequest(request.id)}
-                    className="text-green-500 hover:text-green-600 hover:bg-green-100"
-                  >
-                    <Check size={16} />
-                  </Button>
-                  <Button 
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => declineFriendRequest(request.id)}
-                    className="text-red-500 hover:text-red-600 hover:bg-red-100"
-                  >
-                    <X size={16} />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <FriendRequests 
+        friendRequests={friendRequests}
+        onAccept={acceptFriendRequest}
+        onDecline={declineFriendRequest}
+      />
 
       <div className="space-y-3">
         <h3 className="text-sm font-medium text-muted-foreground">Your Friends ({friends.length})</h3>
         {filteredFriends.length > 0 ? (
           <div className="space-y-2">
             {filteredFriends.map(friend => (
-              <div 
-                key={friend.id} 
-                className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="w-10 h-10 rounded-full overflow-hidden">
-                      <img 
-                        src={friend.avatar} 
-                        alt={friend.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <span className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${
-                      friend.status === 'online' ? 'bg-green-500' : 
-                      friend.status === 'listening' ? 'bg-purple-500 animate-pulse' : 
-                      'bg-gray-400'
-                    }`}></span>
-                  </div>
-                  <div>
-                    <div className="font-medium">{friend.name}</div>
-                    {friend.status === 'listening' && friend.song && (
-                      <div className="text-xs text-muted-foreground flex items-center">
-                        <Music size={10} className="mr-1" />
-                        {friend.song.title} - {friend.song.artist}
-                      </div>
-                    )}
-                    {friend.status === 'online' && (
-                      <div className="text-xs text-green-500">Online</div>
-                    )}
-                    {friend.status === 'offline' && (
-                      <div className="text-xs text-muted-foreground">Offline</div>
-                    )}
-                  </div>
-                </div>
-                
-                {friend.status !== 'offline' && (
-                  <Button 
-                    size="sm" 
-                    onClick={() => listenWithFriend(friend.id)}
-                    className="bg-purple-800 hover:bg-purple-700 text-xs"
-                  >
-                    <Music size={14} className="mr-1" />
-                    Listen Together
-                  </Button>
-                )}
-              </div>
+              <FriendItem 
+                key={friend.id}
+                friend={friend}
+                onListenTogether={listenWithFriend}
+              />
             ))}
           </div>
         ) : (
-          <div className="text-center p-8 text-muted-foreground">
-            <UserRoundPlus className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-            <p className="mb-2">No friends found matching your search</p>
-            <Button 
-              onClick={addNewFriend}
-              className="bg-purple-800 hover:bg-purple-700"
-            >
-              <UserPlus size={16} className="mr-2" />
-              Add New Friend
-            </Button>
-          </div>
+          <EmptyFriendsList onAddNewFriend={addNewFriend} />
         )}
       </div>
     </div>
