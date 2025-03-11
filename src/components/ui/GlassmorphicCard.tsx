@@ -22,9 +22,11 @@ const GlassmorphicCard = ({
     <div
       className={cn(
         "rounded-xl p-4 transition-all duration-300 backdrop-blur-md",
-        variant === "light" ? "glass" : "glass-dark",
+        variant === "light" 
+          ? "bg-white/5 border border-white/10 shadow-[#6A1B9A]/20 shadow-md" 
+          : "bg-black/30 border border-[#6A1B9A]/20 shadow-[#6A1B9A]/30 shadow-md",
         hoverEffect &&
-          "hover:shadow-[#6A1B9A]/30 hover:shadow-lg hover:translate-y-[-2px] cursor-pointer",
+          "hover:shadow-[#6A1B9A]/40 hover:shadow-lg hover:translate-y-[-2px] cursor-pointer",
         pulseEffect && "animate-pulse-glow",
         className
       )}

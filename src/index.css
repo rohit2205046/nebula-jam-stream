@@ -105,11 +105,11 @@
 
 @layer utilities {
   .glass {
-    @apply backdrop-blur-md bg-white/10 border border-white/20 shadow-[#6A1B9A]/20 shadow-md;
+    @apply backdrop-blur-md bg-white/5 border border-white/10 shadow-[#6A1B9A]/20 shadow-md;
   }
   
   .glass-dark {
-    @apply backdrop-blur-md bg-black/20 border border-white/10 shadow-[#6A1B9A]/20 shadow-md;
+    @apply backdrop-blur-md bg-black/30 border border-[#6A1B9A]/20 shadow-[#6A1B9A]/30 shadow-md;
   }
   
   .text-glow {
@@ -186,6 +186,24 @@
     }
     50% {
       box-shadow: 0 0 0 15px rgba(106, 27, 154, 0);
+    }
+  }
+  
+  .astral-bg {
+    background: linear-gradient(to bottom, #1A1F2C, #2E1065);
+    background-attachment: fixed;
+  }
+  
+  .star-twinkle {
+    animation: star-twinkle 4s ease-in-out infinite;
+  }
+  
+  @keyframes star-twinkle {
+    0%, 100% {
+      opacity: 0.2;
+    }
+    50% {
+      opacity: 1;
     }
   }
 }
