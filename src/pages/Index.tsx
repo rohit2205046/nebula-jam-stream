@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import MusicLibrary from "@/components/music/MusicLibrary";
 import MusicPlayer from "@/components/layout/MusicPlayer";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Music, Play } from "lucide-react";
 import ChatModal from "@/components/social/ChatModal";
 
 const Index = () => {
