@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SongCard from "./SongCard";
@@ -155,8 +154,35 @@ const mockSongs = [
   }
 ];
 
+const vintageSongs = [
+  {
+    id: "v1",
+    title: "In The Mood",
+    artist: "Glenn Miller Orchestra",
+    coverImage: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    isLiked: true,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+  },
+  {
+    id: "v2",
+    title: "Take Five",
+    artist: "Dave Brubeck",
+    coverImage: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    isLiked: true,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+  },
+  {
+    id: "v3",
+    title: "What A Wonderful World",
+    artist: "Louis Armstrong",
+    coverImage: "https://images.unsplash.com/photo-1511735111819-9a3f7709049c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    isLiked: true,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+  }
+];
+
 const MusicLibrary = () => {
-  const [songs, setSongs] = useState(mockSongs);
+  const [songs, setSongs] = useState([...mockSongs, ...vintageSongs]);
   const [likedSongs, setLikedSongs] = useState(
     mockSongs.filter((song) => song.isLiked)
   );
@@ -177,24 +203,27 @@ const MusicLibrary = () => {
   };
   
   const handlePlaySong = (songId: string) => {
-    const songToPlay = songs.find(song => song.id === songId);
+    const allSongs = [...songs];
+    const currentIndex = allSongs.findIndex(song => song.id === songId);
+    const songToPlay = allSongs[currentIndex];
+    
     if (songToPlay) {
-      console.log(`Playing song: ${songToPlay.title} by ${songToPlay.artist}`);
+      // Store the current playlist context
+      window.sessionStorage.setItem('currentPlaylist', JSON.stringify({
+        songs: allSongs,
+        currentIndex: currentIndex
+      }));
       
-      // Update currently playing song in MusicPlayer
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('play-song', { 
-          detail: songToPlay 
-        }));
-      }
-      
-      // Add to recently played
-      setRecentlyPlayed(prev => {
-        // Remove the song if it's already in recently played
-        const filtered = prev.filter(s => s.id !== songId);
-        // Add it to the beginning, limit to 5 songs
-        return [songToPlay, ...filtered].slice(0, 5);
-      });
+      // Dispatch the play event
+      window.dispatchEvent(new CustomEvent('play-song', { 
+        detail: {
+          ...songToPlay,
+          playlist: {
+            songs: allSongs,
+            currentIndex: currentIndex
+          }
+        }
+      }));
     }
   };
   
@@ -255,7 +284,7 @@ const MusicLibrary = () => {
         
         <TabsContent value="liked" className="mt-0 animate-fade-in">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-            {likedSongs.map((song) => (
+            {[...likedSongs, ...vintageSongs].map((song) => (
               <SongCard
                 key={song.id}
                 title={song.title}

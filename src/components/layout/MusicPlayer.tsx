@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2, Repeat, Shuffle, Heart } from "lucide-react";
 import GlassmorphicCard from "../ui/GlassmorphicCard";
@@ -43,6 +42,11 @@ const MusicPlayer = () => {
   // Generate a unique session ID for this user's player
   const [sessionId] = useState(() => `user-${Math.random().toString(36).substring(2, 9)}`);
 
+  const [currentPlaylist, setCurrentPlaylist] = useState<{
+    songs: Song[];
+    currentIndex: number;
+  } | null>(null);
+
   // Shared listening functionality
   useEffect(() => {
     if (isShared) {
@@ -85,6 +89,58 @@ const MusicPlayer = () => {
       audioRef.current.volume = volume;
     }
   }, [volume]);
+
+  const playNextSong = () => {
+    if (currentPlaylist && currentPlaylist.currentIndex < currentPlaylist.songs.length - 1) {
+      const nextIndex = currentPlaylist.currentIndex + 1;
+      const nextSong = currentPlaylist.songs[nextIndex];
+      
+      setCurrentPlaylist({
+        ...currentPlaylist,
+        currentIndex: nextIndex
+      });
+      
+      if (audioRef.current) {
+        audioRef.current.src = nextSong.audioUrl;
+        audioRef.current.load();
+        audioRef.current.play()
+          .then(() => {
+            setCurrentSong(nextSong);
+            setIsPlaying(true);
+          })
+          .catch(error => {
+            console.error("Playback failed:", error);
+            setIsPlaying(false);
+          });
+      }
+    }
+  };
+
+  const playPreviousSong = () => {
+    if (currentPlaylist && currentPlaylist.currentIndex > 0) {
+      const prevIndex = currentPlaylist.currentIndex - 1;
+      const prevSong = currentPlaylist.songs[prevIndex];
+      
+      setCurrentPlaylist({
+        ...currentPlaylist,
+        currentIndex: prevIndex
+      });
+      
+      if (audioRef.current) {
+        audioRef.current.src = prevSong.audioUrl;
+        audioRef.current.load();
+        audioRef.current.play()
+          .then(() => {
+            setCurrentSong(prevSong);
+            setIsPlaying(true);
+          })
+          .catch(error => {
+            console.error("Playback failed:", error);
+            setIsPlaying(false);
+          });
+      }
+    }
+  };
 
   useEffect(() => {
     // Create audio element
@@ -131,6 +187,10 @@ const MusicPlayer = () => {
       setIsPlaying(false);
       setCurrentTime(0);
       
+      if (song.playlist) {
+        setCurrentPlaylist(song.playlist);
+      }
+      
       if (audioRef.current) {
         audioRef.current.pause();
       }
@@ -138,17 +198,18 @@ const MusicPlayer = () => {
       setupAudio(song.audioUrl);
       
       if (audioRef.current) {
-        // Auto-play when a new song is selected
-        audioRef.current.play().then(() => {
-          setIsPlaying(true);
-          toast({
-            title: "Now playing",
-            description: `${song.title} by ${song.artist}`,
+        audioRef.current.play()
+          .then(() => {
+            setIsPlaying(true);
+            toast({
+              title: "Now playing",
+              description: `${song.title} by ${song.artist}`,
+            });
+          })
+          .catch(error => {
+            console.error("Playback failed:", error);
+            setIsPlaying(false);
           });
-        }).catch(error => {
-          console.error("Playback failed:", error);
-          setIsPlaying(false);
-        });
       }
     };
     
@@ -307,6 +368,7 @@ const MusicPlayer = () => {
               <button 
                 className="text-muted-foreground hover:text-[#FF10F0] transition-colors"
                 aria-label="Previous song"
+                onClick={playPreviousSong}
               >
                 <SkipBack size={20} />
               </button>
@@ -320,6 +382,7 @@ const MusicPlayer = () => {
               <button 
                 className="text-muted-foreground hover:text-[#FF10F0] transition-colors"
                 aria-label="Next song"
+                onClick={playNextSong}
               >
                 <SkipForward size={20} />
               </button>
