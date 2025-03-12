@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SongCard from "./SongCard";
 import AnimatedButton from "../ui/AnimatedButton";
 import AddSong from "./AddSong";
-import { Heart, Clock, ListMusic, Plus } from "lucide-react";
+import { Heart, Clock, ListMusic, Plus, Disc } from "lucide-react";
 
 // Expanded mock data with more songs and free music URLs
 const mockSongs = [
@@ -154,6 +154,50 @@ const mockSongs = [
   }
 ];
 
+// 1950s English free songs
+const fifties = [
+  {
+    id: "f1",
+    title: "Rock Around the Clock",
+    artist: "Bill Haley & His Comets",
+    coverImage: "https://images.unsplash.com/photo-1619983081563-430f63602796?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    isLiked: false,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3",
+  },
+  {
+    id: "f2",
+    title: "Jailhouse Rock",
+    artist: "Elvis Presley",
+    coverImage: "https://images.unsplash.com/photo-1619983081593-e2ba5b543168?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    isLiked: false,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3",
+  },
+  {
+    id: "f3",
+    title: "Great Balls of Fire",
+    artist: "Jerry Lee Lewis",
+    coverImage: "https://images.unsplash.com/photo-1458560871784-56d23406c091?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    isLiked: false,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3",
+  },
+  {
+    id: "f4",
+    title: "Johnny B. Goode",
+    artist: "Chuck Berry",
+    coverImage: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    isLiked: false,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3",
+  },
+  {
+    id: "f5",
+    title: "Blue Suede Shoes",
+    artist: "Carl Perkins",
+    coverImage: "https://images.unsplash.com/photo-1552422535-c45813c61732?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    isLiked: false,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3",
+  }
+];
+
 const vintageSongs = [
   {
     id: "v1",
@@ -182,13 +226,15 @@ const vintageSongs = [
 ];
 
 const MusicLibrary = () => {
-  const [songs, setSongs] = useState([...mockSongs, ...vintageSongs]);
+  const [songs, setSongs] = useState([...mockSongs, ...vintageSongs, ...fifties]);
   const [likedSongs, setLikedSongs] = useState(
-    mockSongs.filter((song) => song.isLiked)
+    songs.filter((song) => song.isLiked)
   );
   const [recentlyPlayed, setRecentlyPlayed] = useState(
     mockSongs.slice(0, 3)
   );
+  
+  const [activeTab, setActiveTab] = useState("all");
   
   const handleToggleLike = (songId: string) => {
     const updatedSongs = songs.map((song) => {
@@ -214,6 +260,11 @@ const MusicLibrary = () => {
         currentIndex: currentIndex
       }));
       
+      // Add to recently played
+      if (!recentlyPlayed.find(song => song.id === songId)) {
+        setRecentlyPlayed(prev => [songToPlay, ...prev].slice(0, 6));
+      }
+      
       // Dispatch the play event
       window.dispatchEvent(new CustomEvent('play-song', { 
         detail: {
@@ -235,10 +286,15 @@ const MusicLibrary = () => {
     // This would create a new playlist in a real app
     console.log("Creating new playlist");
   };
+
+  // Filter songs by tab
+  const getFifties = () => {
+    return songs.filter(song => fifties.some(f => f.id === song.id));
+  };
   
   return (
     <div className="w-full max-w-7xl mx-auto px-4 pt-8 pb-32">
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="flex justify-between items-center mb-6">
           <TabsList className="bg-secondary/50 backdrop-blur-sm">
             <TabsTrigger value="all" className="flex items-center gap-2">
@@ -252,6 +308,10 @@ const MusicLibrary = () => {
             <TabsTrigger value="recent" className="flex items-center gap-2">
               <Clock size={16} />
               <span className="hidden sm:inline">Recently Played</span>
+            </TabsTrigger>
+            <TabsTrigger value="fifties" className="flex items-center gap-2">
+              <Disc size={16} />
+              <span className="hidden sm:inline">1950s Hits</span>
             </TabsTrigger>
           </TabsList>
           
@@ -284,7 +344,7 @@ const MusicLibrary = () => {
         
         <TabsContent value="liked" className="mt-0 animate-fade-in">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-            {[...likedSongs, ...vintageSongs].map((song) => (
+            {likedSongs.map((song) => (
               <SongCard
                 key={song.id}
                 title={song.title}
@@ -301,6 +361,22 @@ const MusicLibrary = () => {
         <TabsContent value="recent" className="mt-0 animate-fade-in">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
             {recentlyPlayed.map((song) => (
+              <SongCard
+                key={song.id}
+                title={song.title}
+                artist={song.artist}
+                coverImage={song.coverImage}
+                isLiked={song.isLiked}
+                onPlay={() => handlePlaySong(song.id)}
+                onToggleLike={() => handleToggleLike(song.id)}
+              />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="fifties" className="mt-0 animate-fade-in">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+            {getFifties().map((song) => (
               <SongCard
                 key={song.id}
                 title={song.title}
