@@ -1,160 +1,173 @@
 
-import { useState } from "react";
-import { Copy, Share2, Users, MessageSquare, Music } from "lucide-react";
+import React, { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
-import GlassmorphicCard from "@/components/ui/GlassmorphicCard";
-import { Button } from "@/components/ui/button";
+import { Copy, Share2, Twitter, Facebook, Link2, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import AnimatedButton from "@/components/ui/AnimatedButton";
+import { toast } from "@/components/ui/use-toast";
+import GlassmorphicCard from "@/components/ui/GlassmorphicCard";
 import MusicPlayer from "@/components/layout/MusicPlayer";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import FriendsList from "@/components/social/FriendsList";
-import ChatSystem from "@/components/social/ChatSystem";
-import { useToast } from "@/hooks/use-toast";
 
 const Referral = () => {
-  const { toast } = useToast();
-  const [referralCode, setReferralCode] = useState("NEBULA-" + Math.random().toString(36).substring(2, 8).toUpperCase());
-  const [friendCode, setFriendCode] = useState("");
-
-  const copyReferralCode = () => {
-    navigator.clipboard.writeText(referralCode);
-    toast({
-      title: "Code Copied!",
-      description: "Referral code has been copied to your clipboard.",
-    });
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [copied, setCopied] = useState(false);
+  const referralCode = "NEBULA" + Math.floor(Math.random() * 10000);
+  const referralLink = `https://nebula-music-app.com/join?code=${referralCode}`;
+  
+  // Toggle theme function
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
 
-  const shareReferralCode = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: "Join me on Nebula Music!",
-        text: `Use my referral code ${referralCode} to join me on Nebula Music and listen together!`,
-        url: window.location.origin,
-      }).catch((error) => console.log("Error sharing:", error));
-    } else {
-      copyReferralCode();
-    }
-  };
-
-  const redeemCode = () => {
-    if (!friendCode.trim()) {
+  // Set initial theme
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, []);
+  
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(referralLink).then(() => {
+      setCopied(true);
       toast({
-        title: "Empty Code",
-        description: "Please enter a valid referral code.",
-        variant: "destructive",
+        title: "Referral link copied!",
+        description: "Share it with your friends to earn rewards",
       });
-      return;
-    }
-
-    // Simulate successful code redemption
-    toast({
-      title: "Success!",
-      description: "You can now listen to music together with your friend!",
+      
+      setTimeout(() => setCopied(false), 2000);
     });
-    
-    // Reset the input field
-    setFriendCode("");
   };
+  
+  const shareViaTwitter = () => {
+    const twitterUrl = `https://twitter.com/intent/tweet?text=Join%20me%20on%20Nebula%20Music%20App%20and%20experience%20music%20like%20never%20before!%20Use%20my%20referral%20code:%20${referralCode}%20${referralLink}`;
+    window.open(twitterUrl, "_blank");
+  };
+  
+  const shareViaFacebook = () => {
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`;
+    window.open(facebookUrl, "_blank");
+  };
+  
+  const rewards = [
+    { name: "1 Friend", reward: "7 days of Premium access", color: "#FF10F0" },
+    { name: "3 Friends", reward: "1 month of Premium access", color: "#9C27B0" },
+    { name: "5 Friends", reward: "3 months of Premium access", color: "#6A1B9A" },
+    { name: "10 Friends", reward: "1 year of Premium access + exclusive themes", color: "#FF10F0" },
+  ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      
-      <div className="container mx-auto px-4 pt-24 pb-32">
-        <h1 className="text-3xl font-bold purple-gradient-text text-center mb-8">
-          Referral & Connect
-        </h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          {/* Share Referral Code */}
-          <GlassmorphicCard className="p-6 animate-float">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <Share2 className="text-purple-800" />
-              Share Your Referral Code
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              Invite friends to join you on Nebula Music. Share your unique code and listen to music together!
-            </p>
-            
-            <div className="flex flex-col space-y-4">
-              <div className="flex">
-                <Input 
-                  value={referralCode} 
-                  readOnly 
-                  className="rounded-r-none border-r-0 bg-secondary/50"
-                />
-                <Button 
-                  onClick={copyReferralCode}
-                  className="rounded-l-none bg-purple-800 hover:bg-purple-700"
-                >
-                  <Copy size={16} />
-                </Button>
-              </div>
-              
-              <Button 
-                onClick={shareReferralCode}
-                className="w-full bg-purple-800 hover:bg-purple-700"
-              >
-                <Share2 size={16} className="mr-2" />
-                Share Code
-              </Button>
-            </div>
-          </GlassmorphicCard>
-          
-          {/* Redeem Code */}
-          <GlassmorphicCard className="p-6 animate-float animate-delay-200">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <Music className="text-purple-800" />
-              Listen Together
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              Enter a friend's referral code to connect and listen to music together in real-time.
-            </p>
-            
-            <div className="flex flex-col space-y-4">
-              <Input 
-                value={friendCode} 
-                onChange={(e) => setFriendCode(e.target.value)}
-                placeholder="Enter friend's code (e.g., NEBULA-X7Y2Z9)"
-                className="bg-secondary/50"
-              />
-              
-              <Button 
-                onClick={redeemCode}
-                className="w-full bg-purple-800 hover:bg-purple-700"
-              >
-                Connect & Listen
-              </Button>
-            </div>
-          </GlassmorphicCard>
-        </div>
-        
-        {/* Tabs for Friends and Chat */}
-        <Tabs defaultValue="friends" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-secondary/50 p-1">
-            <TabsTrigger value="friends" className="data-[state=active]:bg-purple-800 data-[state=active]:text-white">
-              <Users size={16} className="mr-2" />
-              Friends
-            </TabsTrigger>
-            <TabsTrigger value="chat" className="data-[state=active]:bg-purple-800 data-[state=active]:text-white">
-              <MessageSquare size={16} className="mr-2" />
-              Chat
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="friends">
-            <GlassmorphicCard className="p-6">
-              <FriendsList />
-            </GlassmorphicCard>
-          </TabsContent>
-          
-          <TabsContent value="chat">
-            <GlassmorphicCard className="p-6">
-              <ChatSystem />
-            </GlassmorphicCard>
-          </TabsContent>
-        </Tabs>
+    <div className={`min-h-screen ${theme === "dark" ? "bg-[#1A1F2C]" : "bg-[#f5f3ff]"} text-foreground`}>
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden z-0">
+        <div className={`absolute top-[10%] left-[20%] w-72 h-72 rounded-full ${theme === "dark" ? "bg-[#FF10F0]/10" : "bg-[#FF10F0]/5"} blur-[100px] animate-pulse-slow`}></div>
+        <div className={`absolute bottom-[30%] right-[10%] w-80 h-80 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/15" : "bg-[#9C27B0]/10"} blur-[120px] animate-pulse-slow animate-delay-300`}></div>
+        <div className={`absolute top-[40%] right-[30%] w-40 h-40 rounded-full ${theme === "dark" ? "bg-[#9C27B0]/10" : "bg-[#6A1B9A]/5"} blur-[80px] animate-pulse-slow animate-delay-500`}></div>
       </div>
+      
+      <Navbar theme={theme} toggleTheme={toggleTheme} />
+      
+      <main className="relative z-10 pt-24 pb-32 px-4">
+        <div className="max-w-3xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <h1 className="text-3xl md:text-4xl font-bold purple-gradient-text mb-4">Invite Friends, Earn Rewards</h1>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Share your unique referral link with friends and earn premium rewards when they join Nebula.
+            </p>
+          </div>
+          
+          {/* Referral Link Card */}
+          <GlassmorphicCard className="mb-10 p-6 border border-[#FF10F0]/20">
+            <h2 className="text-xl font-medium mb-4">Your Referral Link</h2>
+            <div className="flex items-center mb-6">
+              <Input 
+                value={referralLink} 
+                readOnly 
+                className="mr-2 bg-secondary/50 focus:border-[#FF10F0] focus:ring-[#FF10F0]" 
+              />
+              <AnimatedButton 
+                onClick={copyToClipboard}
+                variant="default"
+                className={`min-w-24 ${copied ? 'bg-green-500' : 'bg-[#FF10F0]'} hover:bg-opacity-90 text-white transition-colors`}
+              >
+                {copied ? <Check className="mr-1 h-4 w-4" /> : <Copy className="mr-1 h-4 w-4" />}
+                {copied ? 'Copied' : 'Copy'}
+              </AnimatedButton>
+            </div>
+            
+            <div className="flex flex-wrap gap-3 justify-center">
+              <AnimatedButton
+                onClick={shareViaTwitter}
+                variant="outline"
+                className="border-[#FF10F0] text-[#FF10F0] hover:bg-[#FF10F0]/10"
+              >
+                <Twitter className="mr-2 h-4 w-4" />
+                Twitter
+              </AnimatedButton>
+              
+              <AnimatedButton
+                onClick={shareViaFacebook}
+                variant="outline"
+                className="border-[#FF10F0] text-[#FF10F0] hover:bg-[#FF10F0]/10"
+              >
+                <Facebook className="mr-2 h-4 w-4" />
+                Facebook
+              </AnimatedButton>
+              
+              <AnimatedButton
+                onClick={copyToClipboard}
+                variant="outline"
+                className="border-[#FF10F0] text-[#FF10F0] hover:bg-[#FF10F0]/10"
+              >
+                <Link2 className="mr-2 h-4 w-4" />
+                Copy Link
+              </AnimatedButton>
+            </div>
+          </GlassmorphicCard>
+          
+          {/* Rewards */}
+          <section>
+            <h2 className="text-2xl font-bold mb-6 purple-gradient-text text-center">Rewards</h2>
+            <div className="grid gap-4 mb-8">
+              {rewards.map((reward, index) => (
+                <div 
+                  key={index} 
+                  className="p-4 rounded-lg flex items-center border border-[#FF10F0]/20 bg-transparent hover:bg-[#FF10F0]/5 transition-colors"
+                  style={{ borderLeftWidth: '4px', borderLeftColor: reward.color }}
+                >
+                  <div className="mr-4 w-12 h-12 rounded-full bg-gradient-to-r from-[#6A1B9A] to-[#FF10F0] flex items-center justify-center text-white font-bold">
+                    {index + 1}
+                  </div>
+                  <div>
+                    <h3 className="font-medium">{reward.name}</h3>
+                    <p className="text-sm text-muted-foreground">{reward.reward}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="text-center">
+              <AnimatedButton 
+                variant="default" 
+                className="bg-gradient-to-r from-[#6A1B9A] to-[#FF10F0] text-white hover:opacity-90"
+                onClick={() => {
+                  navigator.share({
+                    title: 'Join me on Nebula Music App',
+                    text: `Use my referral code: ${referralCode}`,
+                    url: referralLink,
+                  }).catch(err => {
+                    console.error('Error sharing:', err);
+                    copyToClipboard();
+                  });
+                }}
+              >
+                <Share2 className="mr-2 h-4 w-4" />
+                Share Now
+              </AnimatedButton>
+            </div>
+          </section>
+        </div>
+      </main>
       
       <MusicPlayer />
     </div>

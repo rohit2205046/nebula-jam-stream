@@ -1,186 +1,116 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
-import MusicPlayer from "@/components/layout/MusicPlayer";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, Clock, TrendingUp, Sparkles } from "lucide-react";
 import GlassmorphicCard from "@/components/ui/GlassmorphicCard";
-import { ArrowRight, TrendingUp, Zap, Radio, PlayCircle } from "lucide-react";
 
 const Explore = () => {
-  // Sample genres for exploration
-  const genres = [
-    { name: "Electronic", icon: <Zap size={24} />, color: "from-purple-500 to-blue-500" },
-    { name: "Hip Hop", icon: <Radio size={24} />, color: "from-red-500 to-orange-500" },
-    { name: "Ambient", icon: <TrendingUp size={24} />, color: "from-green-500 to-teal-500" },
-    { name: "Rock", icon: <Radio size={24} />, color: "from-blue-500 to-indigo-500" }
-  ];
-
-  // Sample trending songs
-  const trendingSongs = [
-    {
-      id: "t1",
-      title: "Digital Dawn",
-      artist: "Cyberwave",
-      cover: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3",
-      audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
-    },
-    {
-      id: "t2",
-      title: "Neon Streets",
-      artist: "Urban Echo",
-      cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3",
-      audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
-    },
-    {
-      id: "t3",
-      title: "Future Nostalgia",
-      artist: "Retronica",
-      cover: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3",
-      audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
-    },
-    {
-      id: "t4",
-      title: "Synth Revival",
-      artist: "Analog Dreams",
-      cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3",
-      audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"
-    },
-    {
-      id: "t5",
-      title: "Crystal Heights",
-      artist: "Pixel Wave",
-      cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3",
-      audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"
-    },
-    {
-      id: "t6",
-      title: "Stellar Voyage",
-      artist: "Cosmic Beat",
-      cover: "https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3",
-      audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"
-    }
-  ];
-
-  const handlePlaySong = (song: any) => {
-    // Dispatch event to play the song
-    window.dispatchEvent(new CustomEvent('play-song', { 
-      detail: {
-        id: song.id,
-        title: song.title,
-        artist: song.artist,
-        coverImage: song.cover,
-        audioUrl: song.audioUrl,
-        isLiked: false
-      }
-    }));
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Toggle theme function
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
 
+  // Set initial theme
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, []);
+  
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="container mx-auto px-4 pt-24 pb-32">
-        <h1 className="text-3xl font-bold mb-8">Explore</h1>
-        
-        <section className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Trending Now</h2>
-            <button className="text-nebula-600 flex items-center text-sm">
-              See all <ArrowRight size={16} className="ml-1" />
-            </button>
+    <div className={`min-h-screen ${theme === "dark" ? "bg-[#1A1F2C]" : "bg-[#f5f3ff]"} text-foreground overflow-hidden transition-colors duration-300`}>
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden z-0">
+        <div className={`absolute top-[10%] left-[20%] w-72 h-72 rounded-full ${theme === "dark" ? "bg-[#FF10F0]/10" : "bg-[#FF10F0]/5"} blur-[100px] animate-pulse-slow`}></div>
+        <div className={`absolute bottom-[30%] right-[10%] w-80 h-80 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/15" : "bg-[#9C27B0]/10"} blur-[120px] animate-pulse-slow animate-delay-300`}></div>
+        <div className={`absolute top-[40%] right-[30%] w-40 h-40 rounded-full ${theme === "dark" ? "bg-[#9C27B0]/10" : "bg-[#6A1B9A]/5"} blur-[80px] animate-pulse-slow animate-delay-500`}></div>
+      </div>
+      
+      <Navbar theme={theme} toggleTheme={toggleTheme} />
+      
+      <main className="relative z-10 pt-24 pb-32 px-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold purple-gradient-text mb-2">Explore</h1>
+            <p className="text-muted-foreground">Discover new music, artists, and sounds</p>
           </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {trendingSongs.map((song) => (
-              <GlassmorphicCard key={song.id} hoverEffect className="p-0 overflow-hidden group">
-                <div className="relative">
-                  <img 
-                    src={song.cover} 
-                    alt={song.title} 
-                    className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <button 
-                      onClick={() => handlePlaySong(song)}
-                      className="w-12 h-12 bg-nebula-600 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-glow"
-                    >
-                      <PlayCircle size={24} />
-                    </button>
-                  </div>
-                </div>
-                <div className="p-3">
-                  <h3 className="font-medium text-sm truncate">{song.title}</h3>
-                  <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
-                </div>
-              </GlassmorphicCard>
-            ))}
+          {/* Search */}
+          <div className="mb-8">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search for artists, songs, or albums..."
+                className="pl-10 py-6 bg-background/50 backdrop-blur-sm rounded-xl border border-[#FF10F0]/20"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
-        </section>
-        
-        <section className="mb-10">
-          <h2 className="text-xl font-semibold mb-4">Featured Playlists</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <GlassmorphicCard className="p-0 overflow-hidden group">
-              <div className="relative">
-                <img 
-                  src="https://images.unsplash.com/photo-1614149162883-504ce4d13909?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3" 
-                  alt="Focus Playlist" 
-                  className="w-full aspect-[3/2] object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-4">
-                  <h3 className="text-white text-lg font-bold">Focus Mode</h3>
-                  <p className="text-white/80 text-sm">Ambient tracks to boost productivity</p>
-                </div>
-              </div>
+          
+          {/* Featured Categories */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+            <GlassmorphicCard className="p-6 bg-gradient-to-br from-[#FF10F0]/20 to-[#6A1B9A]/20 backdrop-blur-md hover:from-[#FF10F0]/30 hover:to-[#6A1B9A]/30 transition-colors duration-300">
+              <TrendingUp className="w-10 h-10 text-[#FF10F0] mb-4" />
+              <h3 className="text-xl font-bold mb-2">Trending Now</h3>
+              <p className="text-sm text-muted-foreground mb-4">Discover what's popular in the community right now</p>
+              <Button variant="outline" className="border-[#FF10F0] text-[#FF10F0] hover:bg-[#FF10F0]/10">Explore Trending</Button>
             </GlassmorphicCard>
             
-            <GlassmorphicCard className="p-0 overflow-hidden group">
-              <div className="relative">
-                <img 
-                  src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3" 
-                  alt="Party Mix" 
-                  className="w-full aspect-[3/2] object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-4">
-                  <h3 className="text-white text-lg font-bold">Party Mix</h3>
-                  <p className="text-white/80 text-sm">High energy tracks for your next event</p>
-                </div>
-              </div>
+            <GlassmorphicCard className="p-6 bg-gradient-to-br from-[#6A1B9A]/20 to-[#FF10F0]/20 backdrop-blur-md hover:from-[#6A1B9A]/30 hover:to-[#FF10F0]/30 transition-colors duration-300">
+              <Sparkles className="w-10 h-10 text-[#FF10F0] mb-4" />
+              <h3 className="text-xl font-bold mb-2">New Releases</h3>
+              <p className="text-sm text-muted-foreground mb-4">The latest songs and albums added to our platform</p>
+              <Button variant="outline" className="border-[#FF10F0] text-[#FF10F0] hover:bg-[#FF10F0]/10">See New Releases</Button>
             </GlassmorphicCard>
             
-            <GlassmorphicCard className="p-0 overflow-hidden group">
-              <div className="relative">
-                <img 
-                  src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3" 
-                  alt="Chill Vibes" 
-                  className="w-full aspect-[3/2] object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-4">
-                  <h3 className="text-white text-lg font-bold">Chill Vibes</h3>
-                  <p className="text-white/80 text-sm">Relaxing beats for your downtime</p>
-                </div>
-              </div>
+            <GlassmorphicCard className="p-6 bg-gradient-to-br from-[#FF10F0]/20 to-[#6A1B9A]/20 backdrop-blur-md hover:from-[#FF10F0]/30 hover:to-[#6A1B9A]/30 transition-colors duration-300">
+              <Clock className="w-10 h-10 text-[#FF10F0] mb-4" />
+              <h3 className="text-xl font-bold mb-2">Recently Played</h3>
+              <p className="text-sm text-muted-foreground mb-4">Pick up where you left off with your recent listens</p>
+              <Button variant="outline" className="border-[#FF10F0] text-[#FF10F0] hover:bg-[#FF10F0]/10">View History</Button>
             </GlassmorphicCard>
           </div>
-        </section>
-        
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Browse by Genre</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {genres.map((genre, index) => (
-              <GlassmorphicCard 
-                key={index} 
-                hoverEffect 
-                className="flex items-center p-6"
-              >
-                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${genre.color} flex items-center justify-center text-white mr-3`}>
-                  {genre.icon}
-                </div>
-                <span className="font-medium">{genre.name}</span>
-              </GlassmorphicCard>
-            ))}
+          
+          {/* Placeholder content - in a real app, this would be dynamic */}
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold mb-4 purple-gradient-text">Genres</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {["Electronic", "Rock", "Hip Hop", "Jazz", "Classical", "Ambient", "Pop", "Indie", "Folk", "R&B", "Metal", "Synthwave"].map((genre, index) => (
+                <GlassmorphicCard 
+                  key={index} 
+                  className="aspect-square flex items-center justify-center text-center p-4 hover:scale-105 transition-transform cursor-pointer"
+                  hoverEffect
+                >
+                  <p className="font-medium">{genre}</p>
+                </GlassmorphicCard>
+              ))}
+            </div>
           </div>
-        </section>
+          
+          <div>
+            <h2 className="text-2xl font-bold mb-4 purple-gradient-text">Moods</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {["Upbeat", "Relaxed", "Focus", "Energy", "Chill", "Workout", "Party", "Sleep"].map((mood, index) => (
+                <GlassmorphicCard 
+                  key={index} 
+                  className="p-6 text-center hover:bg-[#FF10F0]/5 transition-colors cursor-pointer"
+                  hoverEffect
+                >
+                  <p className="font-medium">{mood}</p>
+                </GlassmorphicCard>
+              ))}
+            </div>
+          </div>
+        </div>
       </main>
-      <MusicPlayer />
     </div>
   );
 };
