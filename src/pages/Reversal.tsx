@@ -10,6 +10,19 @@ import AnimatedButton from "@/components/ui/AnimatedButton";
 const Reversal = () => {
   const [originalText, setOriginalText] = useState("");
   const [reversedText, setReversedText] = useState("");
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  
+  // Toggle theme function
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+  };
+
+  // Set initial theme
+  React.useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, []);
   
   const handleReverseText = () => {
     setReversedText(originalText.split("").reverse().join(""));
@@ -28,9 +41,16 @@ const Reversal = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="container mx-auto px-4 pt-24 pb-32">
+    <div className={`min-h-screen ${theme === "dark" ? "bg-[#1A1F2C]" : "bg-[#f5f3ff]"} text-foreground overflow-x-hidden transition-colors duration-300`}>
+      {/* Background elements */}
+      <div className="fixed inset-0 overflow-hidden z-0">
+        <div className={`absolute top-[10%] left-[20%] w-72 h-72 rounded-full ${theme === "dark" ? "bg-[#FF10F0]/10" : "bg-[#FF10F0]/5"} blur-[100px] animate-pulse-slow`}></div>
+        <div className={`absolute bottom-[30%] right-[10%] w-80 h-80 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/15" : "bg-[#9C27B0]/10"} blur-[120px] animate-pulse-slow animate-delay-300`}></div>
+      </div>
+      
+      <Navbar theme={theme} toggleTheme={toggleTheme} />
+      
+      <main className="relative z-10 pt-24 pb-32 px-4">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-2 purple-gradient-text">Reversal Studio</h1>
           <p className="text-muted-foreground mb-8">Transform your content with our reversing technology</p>
