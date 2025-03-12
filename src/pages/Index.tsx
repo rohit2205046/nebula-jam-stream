@@ -9,6 +9,7 @@ import AnimatedButton from "@/components/ui/AnimatedButton";
 import GlassmorphicCard from "@/components/ui/GlassmorphicCard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link } from "react-router-dom";
+import ShootingStars from "@/components/ui/ShootingStars";
 
 // Featured albums data
 const featuredAlbums = [
