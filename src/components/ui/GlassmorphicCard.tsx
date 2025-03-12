@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
 interface GlassmorphicCardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -10,16 +10,17 @@ interface GlassmorphicCardProps extends React.HTMLAttributes<HTMLDivElement> {
   pulseEffect?: boolean;
 }
 
-const GlassmorphicCard = ({
+const GlassmorphicCard = forwardRef<HTMLDivElement, GlassmorphicCardProps>(({
   children,
   className,
   hoverEffect = false,
   variant = "light",
   pulseEffect = false,
   ...props
-}: GlassmorphicCardProps) => {
+}, ref) => {
   return (
     <div
+      ref={ref}
       className={cn(
         "rounded-xl p-4 transition-all duration-300 backdrop-blur-md",
         variant === "light" 
@@ -35,6 +36,8 @@ const GlassmorphicCard = ({
       {children}
     </div>
   );
-};
+});
+
+GlassmorphicCard.displayName = "GlassmorphicCard";
 
 export default GlassmorphicCard;

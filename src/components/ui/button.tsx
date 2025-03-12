@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -18,6 +19,9 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // Add custom nebula variants
+        nebula: "bg-[#FF10F0] text-white hover:bg-[#FF10F0]/90",
+        nebula_outline: "border border-[#FF10F0] text-[#FF10F0] hover:bg-[#FF10F0]/10",
       },
       size: {
         default: "h-10 px-4 py-2",

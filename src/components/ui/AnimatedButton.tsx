@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 interface AnimatedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: "primary" | "secondary" | "ghost" | "link";
+  variant?: "primary" | "secondary" | "ghost" | "link" | "default" | "outline";
   size?: "sm" | "md" | "lg";
   isActive?: boolean;
 }
@@ -28,11 +28,14 @@ const AnimatedButton = ({
   };
   
   // Variant styles
-  const variantStyles = {
+  const variantStyles: Record<string, string> = {
     primary: `bg-[#6A1B9A] text-white hover:bg-[#6A1B9A]/90 active:bg-[#6A1B9A]/80 ${isActive ? "shadow-[#6A1B9A]/30 shadow-lg" : ""}`,
     secondary: `bg-secondary text-secondary-foreground hover:bg-secondary/80 ${isActive ? "bg-secondary/90" : ""}`,
     ghost: `bg-transparent hover:bg-secondary ${isActive ? "bg-secondary/50" : ""}`,
     link: "bg-transparent underline-offset-4 hover:underline text-[#6A1B9A]",
+    // Add support for variant "default" and "outline"
+    default: `bg-[#6A1B9A] text-white hover:bg-[#6A1B9A]/90 active:bg-[#6A1B9A]/80 ${isActive ? "shadow-[#6A1B9A]/30 shadow-lg" : ""}`,
+    outline: "bg-transparent border border-[#6A1B9A] text-[#6A1B9A] hover:bg-[#6A1B9A]/10",
   };
   
   return (
