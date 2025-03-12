@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2, Repeat, Shuffle, Heart } from "lucide-react";
 import GlassmorphicCard from "../ui/GlassmorphicCard";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -23,6 +23,10 @@ const MusicPlayer = () => {
   const [isRepeatOn, setIsRepeatOn] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isShared, setIsShared] = useState(false);
+  const [referralCode, setReferralCode] = useState<string>(() => {
+    // Generate a unique referral code for this user
+    return `NEBULA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+  });
   const isMobile = useIsMobile();
   const [currentSong, setCurrentSong] = useState<Song>({
     id: "1",
@@ -45,7 +49,7 @@ const MusicPlayer = () => {
       // Broadcast song changes and play state
       const broadcastSongChange = () => {
         // In a real app, this would use WebSockets or Supabase Realtime
-        console.log(`Broadcasting song: ${currentSong.title} to other listeners`);
+        console.log(`Broadcasting song: ${currentSong.title} to listeners using referral code: ${referralCode}`);
       };
       
       // Listen for song changes from other users
@@ -64,19 +68,60 @@ const MusicPlayer = () => {
         window.removeEventListener('remote-song-change', handleRemoteSongChange as EventListener);
       };
     }
-  }, [isShared, isPlaying, currentSong]);
+  }, [isShared, isPlaying, currentSong, referralCode]);
+
+  // Optimize audio setup with useCallback
+  const setupAudio = useCallback((songUrl: string) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = songUrl;
+      audioRef.current.load();
+    } else {
+      const audio = new Audio(songUrl);
+      audioRef.current = audio;
+    }
+    
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
 
   useEffect(() => {
     // Create audio element
-    const audio = new Audio(currentSong.audioUrl);
-    audioRef.current = audio;
-    audio.volume = volume;
+    setupAudio(currentSong.audioUrl);
+    
+    const audio = audioRef.current;
+    if (!audio) return;
     
     // Set up event listeners
-    audio.addEventListener("timeupdate", updateProgress);
-    audio.addEventListener("loadedmetadata", () => {
+    const updateProgress = () => {
+      setCurrentTime(audio.currentTime);
+    };
+    
+    const handleLoadedMetadata = () => {
       setDuration(audio.duration);
-    });
+    };
+    
+    const handleSongEnd = () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
+      
+      if (isRepeatOn) {
+        // Replay the current song
+        audio.currentTime = 0;
+        audio.play()
+          .then(() => setIsPlaying(true))
+          .catch(error => {
+            console.error("Replay failed:", error);
+          });
+      } else if (isShuffleOn) {
+        // Play a random song in a real app
+        console.log("Would play random song here");
+      }
+    };
+    
+    audio.addEventListener("timeupdate", updateProgress);
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
     audio.addEventListener("ended", handleSongEnd);
     
     // Listen for song change events
@@ -86,35 +131,25 @@ const MusicPlayer = () => {
       setIsPlaying(false);
       setCurrentTime(0);
       
-      // We need to recreate the audio element when the song changes
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current.removeEventListener("timeupdate", updateProgress);
-        audioRef.current.removeEventListener("loadedmetadata", () => {});
-        audioRef.current.removeEventListener("ended", handleSongEnd);
       }
       
-      const newAudio = new Audio(song.audioUrl);
-      newAudio.volume = volume;
-      audioRef.current = newAudio;
+      setupAudio(song.audioUrl);
       
-      newAudio.addEventListener("timeupdate", updateProgress);
-      newAudio.addEventListener("loadedmetadata", () => {
-        setDuration(newAudio.duration);
-      });
-      newAudio.addEventListener("ended", handleSongEnd);
-      
-      // Auto-play when a new song is selected
-      newAudio.play().then(() => {
-        setIsPlaying(true);
-        toast({
-          title: "Now playing",
-          description: `${song.title} by ${song.artist}`,
+      if (audioRef.current) {
+        // Auto-play when a new song is selected
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+          toast({
+            title: "Now playing",
+            description: `${song.title} by ${song.artist}`,
+          });
+        }).catch(error => {
+          console.error("Playback failed:", error);
+          setIsPlaying(false);
         });
-      }).catch(error => {
-        console.error("Playback failed:", error);
-        setIsPlaying(false);
-      });
+      }
     };
     
     window.addEventListener('play-song', handleSongChange as EventListener);
@@ -134,36 +169,16 @@ const MusicPlayer = () => {
     
     return () => {
       // Clean up
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.removeEventListener("timeupdate", updateProgress);
-        audioRef.current.removeEventListener("loadedmetadata", () => {});
-        audioRef.current.removeEventListener("ended", handleSongEnd);
+      if (audio) {
+        audio.pause();
+        audio.removeEventListener("timeupdate", updateProgress);
+        audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        audio.removeEventListener("ended", handleSongEnd);
       }
       window.removeEventListener('play-song', handleSongChange as EventListener);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [currentSong.audioUrl, volume, isMobile]);
-
-  const handleSongEnd = () => {
-    setIsPlaying(false);
-    setCurrentTime(0);
-    
-    if (isRepeatOn) {
-      // Replay the current song
-      if (audioRef.current) {
-        audioRef.current.currentTime = 0;
-        audioRef.current.play()
-          .then(() => setIsPlaying(true))
-          .catch(error => {
-            console.error("Replay failed:", error);
-          });
-      }
-    } else if (isShuffleOn) {
-      // Play a random song in a real app
-      console.log("Would play random song here");
-    }
-  };
+  }, [currentSong.audioUrl, setupAudio, isRepeatOn, isShuffleOn, isMobile]);
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -185,13 +200,10 @@ const MusicPlayer = () => {
     setIsShared(!isShared);
     toast({
       title: isShared ? "Shared listening disabled" : "Shared listening enabled",
-      description: isShared ? "You're now listening privately" : "Friends can join your listening session",
+      description: isShared 
+        ? "You're now listening privately" 
+        : `Friends can join your session with code: ${referralCode}`,
     });
-  };
-
-  const updateProgress = () => {
-    if (!audioRef.current) return;
-    setCurrentTime(audioRef.current.currentTime);
   };
 
   const seekTo = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,7 +244,7 @@ const MusicPlayer = () => {
     return (
       <div 
         ref={playerRef}
-        className="fixed bottom-4 right-4 z-40 animate-slide-up"
+        className="fixed bottom-4 right-4 z-40 animate-slide-up will-change-transform"
         onClick={() => setIsCollapsed(false)}
       >
         <GlassmorphicCard className="p-2 rounded-full w-14 h-14 flex items-center justify-center">
@@ -251,121 +263,120 @@ const MusicPlayer = () => {
   }
 
   return (
-    <GlassmorphicCard 
-      className="fixed bottom-0 left-0 right-0 p-4 mx-auto max-w-7xl animate-slide-up z-40"
-      ref={playerRef}
-    >
-      <div className="flex flex-col md:flex-row items-center">
-        {/* Song Info */}
-        <div className="flex items-center mb-4 md:mb-0 w-full md:w-1/4">
-          <div className="w-12 h-12 rounded-md overflow-hidden mr-3 flex-shrink-0 group relative">
-            <img 
-              src={currentSong.coverImage} 
-              alt={currentSong.title} 
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-            />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <Heart 
-                size={16} 
-                className={`${currentSong.isLiked ? 'text-[#FF10F0] fill-[#FF10F0]' : 'text-white'} cursor-pointer`}
-                onClick={toggleLike}
+    <div ref={playerRef} className="fixed bottom-0 left-0 right-0 mx-auto max-w-7xl animate-slide-up z-40">
+      <GlassmorphicCard className="p-4 will-change-transform">
+        <div className="flex flex-col md:flex-row items-center">
+          {/* Song Info */}
+          <div className="flex items-center mb-4 md:mb-0 w-full md:w-1/4">
+            <div className="w-12 h-12 rounded-md overflow-hidden mr-3 flex-shrink-0 group relative">
+              <img 
+                src={currentSong.coverImage} 
+                alt={currentSong.title} 
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
               />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <Heart 
+                  size={16} 
+                  className={`${currentSong.isLiked ? 'text-[#FF10F0] fill-[#FF10F0]' : 'text-white'} cursor-pointer`}
+                  onClick={toggleLike}
+                />
+              </div>
+            </div>
+            <div className="truncate">
+              <h4 className="font-medium text-sm truncate">{currentSong.title}</h4>
+              <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
+            </div>
+            
+            {isShared && (
+              <span className="ml-2 text-xs bg-[#FF10F0] text-white px-2 py-0.5 rounded-full animate-pulse">
+                Shared
+              </span>
+            )}
+          </div>
+          
+          {/* Player Controls */}
+          <div className="flex flex-col w-full md:w-2/4">
+            <div className="flex justify-center items-center space-x-4 mb-3">
+              <button 
+                className={`text-muted-foreground hover:text-[#FF10F0] transition-colors ${isShuffleOn ? 'text-[#FF10F0]' : ''}`}
+                onClick={() => setIsShuffleOn(!isShuffleOn)}
+                aria-label="Shuffle"
+              >
+                <Shuffle size={18} />
+              </button>
+              <button 
+                className="text-muted-foreground hover:text-[#FF10F0] transition-colors"
+                aria-label="Previous song"
+              >
+                <SkipBack size={20} />
+              </button>
+              <button 
+                className="w-10 h-10 rounded-full bg-[#FF10F0] text-white flex items-center justify-center hover:bg-[#FF10F0]/80 hover:shadow-glow transition-all"
+                onClick={togglePlay}
+                aria-label={isPlaying ? "Pause" : "Play"}
+              >
+                {isPlaying ? <Pause size={20} /> : <Play size={20} className="ml-1" />}
+              </button>
+              <button 
+                className="text-muted-foreground hover:text-[#FF10F0] transition-colors"
+                aria-label="Next song"
+              >
+                <SkipForward size={20} />
+              </button>
+              <button 
+                className={`text-muted-foreground hover:text-[#FF10F0] transition-colors ${isRepeatOn ? 'text-[#FF10F0]' : ''}`}
+                onClick={() => setIsRepeatOn(!isRepeatOn)}
+                aria-label="Repeat"
+              >
+                <Repeat size={18} />
+              </button>
+            </div>
+            
+            <div className="flex items-center w-full">
+              <span className="text-xs text-muted-foreground w-10 text-right mr-2">
+                {formatTime(currentTime)}
+              </span>
+              <input
+                type="range"
+                min="0"
+                max={duration || 100}
+                value={currentTime}
+                onChange={seekTo}
+                className="w-full h-1 bg-secondary rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#FF10F0]"
+                aria-label="Seek"
+              />
+              <span className="text-xs text-muted-foreground w-10 ml-2">
+                {formatTime(duration)}
+              </span>
             </div>
           </div>
-          <div className="truncate">
-            <h4 className="font-medium text-sm truncate">{currentSong.title}</h4>
-            <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
-          </div>
           
-          {isShared && (
-            <span className="ml-2 text-xs bg-[#FF10F0] text-white px-2 py-0.5 rounded-full animate-pulse">
-              Shared
-            </span>
-          )}
-        </div>
-        
-        {/* Player Controls */}
-        <div className="flex flex-col w-full md:w-2/4">
-          <div className="flex justify-center items-center space-x-4 mb-3">
+          {/* Volume Control - Only on larger screens */}
+          <div className="hidden md:flex items-center w-1/4 justify-end">
             <button 
-              className={`text-muted-foreground hover:text-[#FF10F0] transition-colors ${isShuffleOn ? 'text-[#FF10F0]' : ''}`}
-              onClick={() => setIsShuffleOn(!isShuffleOn)}
-              aria-label="Shuffle"
+              className={`mr-4 text-xs px-2 py-0.5 rounded-full transition-colors ${
+                isShared ? 'bg-[#FF10F0] text-white' : 'bg-secondary text-muted-foreground hover:bg-[#FF10F0]/20'
+              }`}
+              onClick={toggleShare}
             >
-              <Shuffle size={18} />
+              {isShared ? 'Shared' : 'Share'}
             </button>
-            <button 
-              className="text-muted-foreground hover:text-[#FF10F0] transition-colors"
-              aria-label="Previous song"
-            >
-              <SkipBack size={20} />
-            </button>
-            <button 
-              className="w-10 h-10 rounded-full bg-[#FF10F0] text-white flex items-center justify-center hover:bg-[#FF10F0]/80 hover:shadow-glow transition-all"
-              onClick={togglePlay}
-              aria-label={isPlaying ? "Pause" : "Play"}
-            >
-              {isPlaying ? <Pause size={20} /> : <Play size={20} className="ml-1" />}
-            </button>
-            <button 
-              className="text-muted-foreground hover:text-[#FF10F0] transition-colors"
-              aria-label="Next song"
-            >
-              <SkipForward size={20} />
-            </button>
-            <button 
-              className={`text-muted-foreground hover:text-[#FF10F0] transition-colors ${isRepeatOn ? 'text-[#FF10F0]' : ''}`}
-              onClick={() => setIsRepeatOn(!isRepeatOn)}
-              aria-label="Repeat"
-            >
-              <Repeat size={18} />
-            </button>
-          </div>
-          
-          <div className="flex items-center w-full">
-            <span className="text-xs text-muted-foreground w-10 text-right mr-2">
-              {formatTime(currentTime)}
-            </span>
+            
+            <Volume2 size={18} className="text-muted-foreground mr-2" />
             <input
               type="range"
               min="0"
-              max={duration || 100}
-              value={currentTime}
-              onChange={seekTo}
-              className="w-full h-1 bg-secondary rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#FF10F0]"
-              aria-label="Seek"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={handleVolumeChange}
+              className="w-24 h-1 bg-secondary rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#FF10F0]"
+              aria-label="Volume"
             />
-            <span className="text-xs text-muted-foreground w-10 ml-2">
-              {formatTime(duration)}
-            </span>
           </div>
         </div>
-        
-        {/* Volume Control - Only on larger screens */}
-        <div className="hidden md:flex items-center w-1/4 justify-end">
-          <button 
-            className={`mr-4 text-xs px-2 py-0.5 rounded-full transition-colors ${
-              isShared ? 'bg-[#FF10F0] text-white' : 'bg-secondary text-muted-foreground hover:bg-[#FF10F0]/20'
-            }`}
-            onClick={toggleShare}
-          >
-            {isShared ? 'Shared' : 'Share'}
-          </button>
-          
-          <Volume2 size={18} className="text-muted-foreground mr-2" />
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={volume}
-            onChange={handleVolumeChange}
-            className="w-24 h-1 bg-secondary rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#FF10F0]"
-            aria-label="Volume"
-          />
-        </div>
-      </div>
-    </GlassmorphicCard>
+      </GlassmorphicCard>
+    </div>
   );
 };
 

@@ -30,21 +30,27 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
     setShowNotifications(false);
   }, [location.pathname]);
 
+  // Optimized scroll handler with debounce
   useEffect(() => {
+    let timeout: number;
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 10;
-      if (isScrolled !== scrolled) {
-        setScrolled(isScrolled);
-      }
+      clearTimeout(timeout);
+      timeout = window.setTimeout(() => {
+        const isScrolled = window.scrollY > 10;
+        if (isScrolled !== scrolled) {
+          setScrolled(isScrolled);
+        }
+      }, 10); // Small debounce time
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeout);
     };
   }, [scrolled]);
 
-  // Close menu when clicking outside with improved performance
+  // Improved click outside handler
   useEffect(() => {
     if (!menuOpen && !showNotifications) return;
     
@@ -58,8 +64,9 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
       }
     };
     
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    // Use capture phase for better performance
+    document.addEventListener('mousedown', handleClickOutside, { capture: true });
+    return () => document.removeEventListener('mousedown', handleClickOutside, { capture: true });
   }, [menuOpen, showNotifications]);
 
   const handleNotificationClick = (id: number) => {
@@ -89,7 +96,7 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
       <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Mobile Menu Button */}
         <button
-          className={`menu-button text-foreground p-2 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/20" : "bg-purple-100/80"} backdrop-blur-md`}
+          className={`menu-button text-foreground p-2 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/20" : "bg-purple-100/80"} backdrop-blur-md will-change-transform`}
           onClick={() => {
             setMenuOpen(!menuOpen);
             setShowNotifications(false);
@@ -113,7 +120,7 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
         <div className="flex items-center space-x-3">
           <button 
             onClick={toggleTheme}
-            className={`text-foreground hover:text-[#6A1B9A] transition-colors p-2 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/10" : "bg-purple-100/80"} backdrop-blur-md`}
+            className={`text-foreground hover:text-[#6A1B9A] transition-colors p-2 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/10" : "bg-purple-100/80"} backdrop-blur-md will-change-transform`}
             aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           >
             {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
@@ -121,7 +128,7 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
           
           <div className="relative">
             <button 
-              className={`notifications-button text-foreground hover:text-[#6A1B9A] transition-colors p-2 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/10" : "bg-purple-100/80"} backdrop-blur-md relative`}
+              className={`notifications-button text-foreground hover:text-[#6A1B9A] transition-colors p-2 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/10" : "bg-purple-100/80"} backdrop-blur-md relative will-change-transform`}
               onClick={() => {
                 setShowNotifications(!showNotifications);
                 setMenuOpen(false);
@@ -138,7 +145,7 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
             
             {/* Notifications Dropdown */}
             {showNotifications && (
-              <div className="notifications-container absolute right-0 mt-2 w-72 max-h-80 overflow-y-auto rounded-lg shadow-lg z-50 backdrop-blur-xl border border-[#6A1B9A]/20">
+              <div className="notifications-container absolute right-0 mt-2 w-72 max-h-80 overflow-y-auto rounded-lg shadow-lg z-50 backdrop-blur-xl border border-[#6A1B9A]/20 will-change-transform">
                 <GlassmorphicCard className="p-2">
                   <h3 className="text-lg font-medium py-2 px-3 border-b border-[#6A1B9A]/20">Notifications</h3>
                   {notifications.length > 0 ? (
@@ -173,8 +180,7 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
       <div
         className={`menu-container fixed inset-0 z-40 ${theme === "dark" ? "bg-[#1A1F2C]/95" : "bg-white/90"} backdrop-blur-lg transition-all duration-300 transform ${
           menuOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
-        } overflow-y-auto`}
-        style={{ willChange: "transform, opacity" }}
+        } will-change-transform overflow-y-auto`}
       >
         <div className="pt-24 px-6 pb-20 grid grid-cols-2 gap-4">
           <Link
@@ -233,14 +239,20 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
             </GlassmorphicCard>
           </Link>
           
-          <GlassmorphicCard 
-            className="col-span-2 mt-4 p-6 flex flex-col items-center justify-center text-center hover:scale-[1.02] transition-all duration-300 bg-[#6A1B9A]/30" 
-            variant={theme === "dark" ? "dark" : "light"}
-            hoverEffect
+          <Link 
+            to="/chat"
+            onClick={() => setMenuOpen(false)}
+            className="col-span-2 mt-4"
           >
-            <MessageSquare size={28} className="text-[#FF10F0] mb-3 love-pulse" />
-            <span className="text-lg font-medium">Chat with Friends</span>
-          </GlassmorphicCard>
+            <GlassmorphicCard 
+              className="p-6 flex flex-col items-center justify-center text-center hover:scale-[1.02] transition-all duration-300 bg-[#6A1B9A]/30" 
+              variant={theme === "dark" ? "dark" : "light"}
+              hoverEffect
+            >
+              <MessageSquare size={28} className="text-[#FF10F0] mb-3 love-pulse" />
+              <span className="text-lg font-medium">Chat with Friends</span>
+            </GlassmorphicCard>
+          </Link>
           
           <div className="col-span-2 mt-6">
             <AnimatedButton variant="primary" className="w-full bg-[#FF10F0] hover:bg-[#FF10F0]/80 py-3">
