@@ -69,6 +69,22 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
     return () => document.removeEventListener('mousedown', handleClickOutside, { capture: true });
   }, [menuOpen, showNotifications]);
 
+  // Fix for menu getting stuck - force cleanup when component unmounts
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
+  // Fix for menu lag - add overflow control
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [menuOpen]);
+
   const handleNotificationClick = (id: number) => {
     // Mark notification as read
     setNotifications(prevNotifications => 
@@ -84,6 +100,92 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  // Avoid rendering full menu when not visible for performance
+  const renderMobileMenu = () => {
+    if (!menuOpen) return null;
+    
+    return (
+      <div
+        className={`menu-container fixed inset-0 z-40 ${theme === "dark" ? "bg-[#1A1F2C]/95" : "bg-white/90"} backdrop-blur-lg transition-all duration-300 transform ${
+          menuOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
+        } will-change-transform overflow-y-auto`}
+      >
+        <div className="pt-24 px-6 pb-20 grid grid-cols-2 gap-4">
+          <Link
+            to="/"
+            onClick={() => setMenuOpen(false)}
+          >
+            <GlassmorphicCard 
+              className="h-full p-6 flex flex-col items-center justify-center text-center hover:scale-105 transition-all duration-300" 
+              variant={theme === "dark" ? "dark" : "light"}
+              hoverEffect
+            >
+              <Zap size={28} className="text-[#FF10F0] mb-3 animate-pulse" />
+              <span className="text-lg font-medium">Home</span>
+            </GlassmorphicCard>
+          </Link>
+          
+          <Link
+            to="/explore"
+            onClick={() => setMenuOpen(false)}
+          >
+            <GlassmorphicCard 
+              className="h-full p-6 flex flex-col items-center justify-center text-center hover:scale-105 transition-all duration-300" 
+              variant={theme === "dark" ? "dark" : "light"}
+              hoverEffect
+            >
+              <Compass size={28} className="text-[#FF10F0] mb-3 animate-bounce-subtle" />
+              <span className="text-lg font-medium">Explore</span>
+            </GlassmorphicCard>
+          </Link>
+          
+          <Link
+            to="/library"
+            onClick={() => setMenuOpen(false)}
+          >
+            <GlassmorphicCard 
+              className="h-full p-6 flex flex-col items-center justify-center text-center hover:scale-105 transition-all duration-300" 
+              variant={theme === "dark" ? "dark" : "light"}
+              hoverEffect
+            >
+              <Music size={28} className="text-[#FF10F0] mb-3 animate-float" />
+              <span className="text-lg font-medium">Library</span>
+            </GlassmorphicCard>
+          </Link>
+          
+          <Link
+            to="/referral"
+            onClick={() => setMenuOpen(false)}
+          >
+            <GlassmorphicCard 
+              className="h-full p-6 flex flex-col items-center justify-center text-center hover:scale-105 transition-all duration-300" 
+              variant={theme === "dark" ? "dark" : "light"}
+              hoverEffect
+            >
+              <Share2 size={28} className="text-[#FF10F0] mb-3 animate-pulse" />
+              <span className="text-lg font-medium">Referral</span>
+            </GlassmorphicCard>
+          </Link>
+          
+          <Link 
+            to="/chat"
+            onClick={() => setMenuOpen(false)}
+            className="col-span-2 mt-4"
+          >
+            <GlassmorphicCard 
+              className="p-6 flex flex-col items-center justify-center text-center hover:scale-[1.02] transition-all duration-300 bg-[#6A1B9A]/30" 
+              variant={theme === "dark" ? "dark" : "light"}
+              hoverEffect
+            >
+              <MessageSquare size={28} className="text-[#FF10F0] mb-3 love-pulse" />
+              <span className="text-lg font-medium">Chat with Friends</span>
+            </GlassmorphicCard>
+          </Link>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <nav
@@ -176,91 +278,8 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
         </div>
       </div>
 
-      {/* Mobile Menu - with improved transition */}
-      <div
-        className={`menu-container fixed inset-0 z-40 ${theme === "dark" ? "bg-[#1A1F2C]/95" : "bg-white/90"} backdrop-blur-lg transition-all duration-300 transform ${
-          menuOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
-        } will-change-transform overflow-y-auto`}
-      >
-        <div className="pt-24 px-6 pb-20 grid grid-cols-2 gap-4">
-          <Link
-            to="/"
-            onClick={() => setMenuOpen(false)}
-          >
-            <GlassmorphicCard 
-              className="h-full p-6 flex flex-col items-center justify-center text-center hover:scale-105 transition-all duration-300" 
-              variant={theme === "dark" ? "dark" : "light"}
-              hoverEffect
-            >
-              <Zap size={28} className="text-[#FF10F0] mb-3 animate-pulse" />
-              <span className="text-lg font-medium">Home</span>
-            </GlassmorphicCard>
-          </Link>
-          
-          <Link
-            to="/explore"
-            onClick={() => setMenuOpen(false)}
-          >
-            <GlassmorphicCard 
-              className="h-full p-6 flex flex-col items-center justify-center text-center hover:scale-105 transition-all duration-300" 
-              variant={theme === "dark" ? "dark" : "light"}
-              hoverEffect
-            >
-              <Compass size={28} className="text-[#FF10F0] mb-3 animate-bounce-subtle" />
-              <span className="text-lg font-medium">Explore</span>
-            </GlassmorphicCard>
-          </Link>
-          
-          <Link
-            to="/library"
-            onClick={() => setMenuOpen(false)}
-          >
-            <GlassmorphicCard 
-              className="h-full p-6 flex flex-col items-center justify-center text-center hover:scale-105 transition-all duration-300" 
-              variant={theme === "dark" ? "dark" : "light"}
-              hoverEffect
-            >
-              <Music size={28} className="text-[#FF10F0] mb-3 animate-float" />
-              <span className="text-lg font-medium">Library</span>
-            </GlassmorphicCard>
-          </Link>
-          
-          <Link
-            to="/referral"
-            onClick={() => setMenuOpen(false)}
-          >
-            <GlassmorphicCard 
-              className="h-full p-6 flex flex-col items-center justify-center text-center hover:scale-105 transition-all duration-300" 
-              variant={theme === "dark" ? "dark" : "light"}
-              hoverEffect
-            >
-              <Share2 size={28} className="text-[#FF10F0] mb-3 animate-pulse" />
-              <span className="text-lg font-medium">Referral</span>
-            </GlassmorphicCard>
-          </Link>
-          
-          <Link 
-            to="/chat"
-            onClick={() => setMenuOpen(false)}
-            className="col-span-2 mt-4"
-          >
-            <GlassmorphicCard 
-              className="p-6 flex flex-col items-center justify-center text-center hover:scale-[1.02] transition-all duration-300 bg-[#6A1B9A]/30" 
-              variant={theme === "dark" ? "dark" : "light"}
-              hoverEffect
-            >
-              <MessageSquare size={28} className="text-[#FF10F0] mb-3 love-pulse" />
-              <span className="text-lg font-medium">Chat with Friends</span>
-            </GlassmorphicCard>
-          </Link>
-          
-          <div className="col-span-2 mt-6">
-            <AnimatedButton variant="primary" className="w-full bg-[#FF10F0] hover:bg-[#FF10F0]/80 py-3">
-              Sign In
-            </AnimatedButton>
-          </div>
-        </div>
-      </div>
+      {/* Mobile Menu - with improved lazy loading */}
+      {renderMobileMenu()}
     </nav>
   );
 };

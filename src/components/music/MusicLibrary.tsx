@@ -104,6 +104,55 @@ const mockSongs = [
     isLiked: false,
     audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3",
   },
+  // Adding more songs
+  {
+    id: "13",
+    title: "Neon Jungle",
+    artist: "Electro Tribe",
+    coverImage: "https://images.unsplash.com/photo-1557672172-298e090bd0f1?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3",
+    isLiked: false,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3",
+  },
+  {
+    id: "14",
+    title: "Vapor Dreams",
+    artist: "Retro Synthwave",
+    coverImage: "https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3",
+    isLiked: true,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3",
+  },
+  {
+    id: "15",
+    title: "Electric Dreams",
+    artist: "Digital Minds",
+    coverImage: "https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3",
+    isLiked: false,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3",
+  },
+  {
+    id: "16",
+    title: "Binary Sunset",
+    artist: "Code Poets",
+    coverImage: "https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?q=80&w=2570&auto=format&fit=crop&ixlib=rb-4.0.3",
+    isLiked: true,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3",
+  },
+  {
+    id: "17",
+    title: "Neural Network",
+    artist: "AI Symphony",
+    coverImage: "https://images.unsplash.com/photo-1534224039826-c7a0eda0e6b3?q=80&w=2570&auto=format&fit=crop&ixlib=rb-4.0.3",
+    isLiked: false,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+  },
+  {
+    id: "18",
+    title: "Quantum Leap",
+    artist: "Future State",
+    coverImage: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2422&auto=format&fit=crop&ixlib=rb-4.0.3",
+    isLiked: true,
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+  }
 ];
 
 const MusicLibrary = () => {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import MusicLibrary from "@/components/music/MusicLibrary";
@@ -86,6 +85,100 @@ const openSourceCollections = [
   }
 ];
 
+// Shooting stars component
+const ShootingStars = () => {
+  return (
+    <div className="shooting-stars-container">
+      <div className="shooting-star shooting-star-1"></div>
+      <div className="shooting-star shooting-star-2"></div>
+      <div className="shooting-star shooting-star-3"></div>
+      <div className="shooting-star shooting-star-4"></div>
+      <div className="shooting-star shooting-star-5"></div>
+      <style jsx>{`
+        .shooting-stars-container {
+          position: fixed;
+          inset: 0;
+          z-index: 0;
+          pointer-events: none;
+          overflow: hidden;
+        }
+        .shooting-star {
+          position: absolute;
+          width: 100px;
+          height: 1px;
+          background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.8) 50%, rgba(255,255,255,0));
+          border-radius: 50%;
+          animation-iteration-count: infinite;
+          animation-timing-function: ease-in-out;
+          opacity: 0;
+        }
+        .shooting-star::before {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 2px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.8);
+          box-shadow: 0 0 3px 2px rgba(255, 255, 255, 0.4);
+          transform: translateY(-50%);
+          right: 0;
+        }
+        .shooting-star-1 {
+          top: 15%;
+          left: -100px;
+          transform: rotate(25deg);
+          animation: shootingstar 7s 2s infinite;
+        }
+        .shooting-star-2 {
+          top: 35%;
+          left: -100px;
+          transform: rotate(15deg);
+          animation: shootingstar 8s 5s infinite;
+        }
+        .shooting-star-3 {
+          top: 55%;
+          left: -100px;
+          transform: rotate(35deg);
+          animation: shootingstar 6s 1s infinite;
+        }
+        .shooting-star-4 {
+          top: 70%;
+          left: -100px;
+          transform: rotate(20deg);
+          animation: shootingstar 9s 3s infinite;
+        }
+        .shooting-star-5 {
+          top: 10%;
+          left: -100px;
+          transform: rotate(10deg);
+          animation: shootingstar 7.5s 6s infinite;
+        }
+        @keyframes shootingstar {
+          0% {
+            transform: translateX(0) rotate(var(--rotation, 25deg));
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          25% {
+            transform: translateX(50vw) rotate(var(--rotation, 25deg));
+            opacity: 1;
+          }
+          50% {
+            transform: translateX(100vw) rotate(var(--rotation, 25deg));
+            opacity: 0;
+          }
+          100% {
+            transform: translateX(0) rotate(var(--rotation, 25deg));
+            opacity: 0;
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
 const Index = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -108,7 +201,7 @@ const Index = () => {
   // Generate random gradients for cards
   const getRandomGradient = () => {
     const gradients = [
-      "from-[#6A1B9A] to-[#9C27B0]",
+      "from-[#6A1B9A] to-[#FF10F0]",
       "from-[#FF10F0] to-[#9C27B0]",
       "from-[#6A1B9A] to-[#FF10F0]",
       "from-[#9C27B0] to-[#FF10F0]"
@@ -155,6 +248,9 @@ const Index = () => {
             <div className="absolute top-[85%] left-[20%] w-1 h-1 rounded-full bg-white animate-pulse-slow animate-delay-100"></div>
           </>
         )}
+        
+        {/* Add shooting stars - only in dark theme */}
+        {theme === "dark" && <ShootingStars />}
       </div>
       
       <Navbar theme={theme} toggleTheme={toggleTheme} />
