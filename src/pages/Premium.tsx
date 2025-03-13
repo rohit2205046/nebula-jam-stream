@@ -40,7 +40,7 @@ const Premium = () => {
     {
       name: "Basic",
       icon: <Music className="w-8 h-8 text-[#FF10F0]" />,
-      price: "$4.99",
+      price: "₹399",
       period: "month",
       color: "from-purple-400 to-purple-600",
       features: [
@@ -54,7 +54,7 @@ const Premium = () => {
     {
       name: "Pro",
       icon: <Star className="w-8 h-8 text-[#FFD700]" />,
-      price: "$9.99",
+      price: "₹799",
       period: "month",
       color: "from-[#6A1B9A] to-[#FF10F0]",
       features: [
@@ -70,7 +70,7 @@ const Premium = () => {
     {
       name: "Ultimate",
       icon: <Crown className="w-8 h-8 text-[#FFD700]" />,
-      price: "$14.99",
+      price: "₹1,199",
       period: "month",
       color: "from-[#FFD700] to-[#FF10F0]",
       features: [
