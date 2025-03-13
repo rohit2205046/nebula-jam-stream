@@ -7,7 +7,6 @@ interface SongCardProps {
   title: string;
   artist: string;
   coverImage: string;
-  isLiked?: boolean;
   onPlay?: () => void;
   onAddToPlaylist?: React.ReactNode;
   onRemoveFromPlaylist?: React.ReactNode;
@@ -18,7 +17,6 @@ const SongCard: React.FC<SongCardProps> = ({
   title,
   artist,
   coverImage,
-  isLiked = false,
   onPlay,
   onAddToPlaylist,
   onRemoveFromPlaylist,
@@ -34,8 +32,7 @@ const SongCard: React.FC<SongCardProps> = ({
         title,
         artist,
         coverImage,
-        audioUrl,
-        isLiked
+        audioUrl
       };
       
       console.log("Dispatching play-song event with data:", songData);

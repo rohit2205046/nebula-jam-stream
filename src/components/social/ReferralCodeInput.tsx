@@ -3,13 +3,17 @@ import React, { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import AnimatedButton from "@/components/ui/AnimatedButton";
-import { Music } from "lucide-react";
+import { Music, Crown } from "lucide-react";
 
 interface ReferralCodeInputProps {
   onCodeSubmit?: (code: string) => void;
+  isPremium?: boolean;
 }
 
-const ReferralCodeInput: React.FC<ReferralCodeInputProps> = ({ onCodeSubmit }) => {
+const ReferralCodeInput: React.FC<ReferralCodeInputProps> = ({ 
+  onCodeSubmit,
+  isPremium = false
+}) => {
   const [code, setCode] = useState("");
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,7 +49,11 @@ const ReferralCodeInput: React.FC<ReferralCodeInputProps> = ({ onCodeSubmit }) =
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm mb-2">Enter Friend's Referral Code</label>
+        <label className="block text-sm mb-2">
+          {isPremium 
+            ? "Enter Friend's Premium Referral Code" 
+            : "Enter Friend's Referral Code"}
+        </label>
         <Input 
           value={code}
           onChange={(e) => setCode(e.target.value)}
@@ -57,10 +65,19 @@ const ReferralCodeInput: React.FC<ReferralCodeInputProps> = ({ onCodeSubmit }) =
       <AnimatedButton 
         type="submit"
         variant="primary"
-        className="w-full bg-[#FF10F0] hover:bg-[#FF10F0]/80"
+        className={`w-full ${isPremium ? "bg-gradient-to-r from-[#6A1B9A] to-[#FF10F0]" : "bg-[#FF10F0]"} hover:opacity-90`}
       >
-        <Music size={16} className="mr-2" />
-        Listen Together
+        {isPremium ? (
+          <>
+            <Crown size={16} className="mr-2" />
+            Join Premium Session
+          </>
+        ) : (
+          <>
+            <Music size={16} className="mr-2" />
+            Listen Together
+          </>
+        )}
       </AnimatedButton>
     </form>
   );

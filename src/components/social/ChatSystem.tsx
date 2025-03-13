@@ -1,6 +1,5 @@
-
 import React, { useState, useRef, useEffect } from "react";
-import { Send, User, ChevronLeft, MoreVertical, Phone, Video } from "lucide-react";
+import { Send, User, ChevronLeft, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import GlassmorphicCard from "@/components/ui/GlassmorphicCard";
@@ -260,13 +259,7 @@ const ChatSystem = () => {
                 </p>
               </div>
             </div>
-            <div className="flex space-x-1">
-              <Button variant="ghost" size="icon" className="text-purple-600">
-                <Phone size={18} />
-              </Button>
-              <Button variant="ghost" size="icon" className="text-purple-600">
-                <Video size={18} />
-              </Button>
+            <div>
               <Button variant="ghost" size="icon">
                 <MoreVertical size={18} />
               </Button>

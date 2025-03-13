@@ -1,10 +1,23 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Bell, Menu, X, Zap, Compass, Music, Share2, MessageSquare, Sun, Moon } from "lucide-react";
+import { 
+  Search, Bell, Menu, X, Zap, Compass, Music, 
+  Share2, MessageSquare, Sun, Moon, Crown
+} from "lucide-react";
 import AnimatedButton from "@/components/ui/AnimatedButton";
 import GlassmorphicCard from "@/components/ui/GlassmorphicCard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/components/ui/use-toast";
+import { 
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger
+} from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
 
 interface NavbarProps {
   theme: "light" | "dark";
@@ -93,6 +106,82 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  // Desktop Navigation Menu
+  const DesktopMenu = () => {
+    if (isMobile) return null;
+    
+    return (
+      <NavigationMenu className="hidden md:flex">
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <Link to="/" className={`px-3 py-2 text-sm font-medium relative group ${location.pathname === '/' ? 'text-[#FF10F0]' : 'hover:text-[#FF10F0]'}`}>
+              Home
+              <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-[#FF10F0] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${location.pathname === '/' ? 'scale-x-100' : ''}`}></span>
+            </Link>
+          </NavigationMenuItem>
+          
+          <NavigationMenuItem>
+            <Link to="/explore" className={`px-3 py-2 text-sm font-medium relative group ${location.pathname === '/explore' ? 'text-[#FF10F0]' : 'hover:text-[#FF10F0]'}`}>
+              Explore
+              <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-[#FF10F0] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${location.pathname === '/explore' ? 'scale-x-100' : ''}`}></span>
+            </Link>
+          </NavigationMenuItem>
+          
+          <NavigationMenuItem>
+            <Link to="/library" className={`px-3 py-2 text-sm font-medium relative group ${location.pathname === '/library' ? 'text-[#FF10F0]' : 'hover:text-[#FF10F0]'}`}>
+              Library
+              <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-[#FF10F0] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${location.pathname === '/library' ? 'scale-x-100' : ''}`}></span>
+            </Link>
+          </NavigationMenuItem>
+          
+          <NavigationMenuItem>
+            <NavigationMenuTrigger className={`bg-transparent hover:bg-transparent hover:text-[#FF10F0] ${location.pathname === '/premium' || location.pathname === '/referral' ? 'text-[#FF10F0]' : ''}`}>
+              Premium
+            </NavigationMenuTrigger>
+            
+            <NavigationMenuContent>
+              <div className="w-[400px] p-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <Link
+                    to="/premium"
+                    className="flex flex-col items-start gap-1 rounded-lg p-3 hover:bg-[#6A1B9A]/10 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Crown className="h-5 w-5 text-[#FFD700]" />
+                      <div className="text-sm font-medium">Subscription Plans</div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Upgrade to premium for enhanced features
+                    </p>
+                  </Link>
+                  <Link
+                    to="/referral"
+                    className="flex flex-col items-start gap-1 rounded-lg p-3 hover:bg-[#6A1B9A]/10 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Share2 className="h-5 w-5 text-[#FF10F0]" />
+                      <div className="text-sm font-medium">Referral Program</div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Invite friends and earn free subscription time
+                    </p>
+                  </Link>
+                </div>
+              </div>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          
+          <NavigationMenuItem>
+            <Link to="/chat" className={`px-3 py-2 text-sm font-medium relative group ${location.pathname === '/chat' ? 'text-[#FF10F0]' : 'hover:text-[#FF10F0]'}`}>
+              Chat
+              <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-[#FF10F0] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${location.pathname === '/chat' ? 'scale-x-100' : ''}`}></span>
+            </Link>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+    );
+  };
+
   // Render mobile menu with memoization for performance
   const renderMobileMenu = () => {
     if (!menuOpen) return null;
@@ -147,6 +236,20 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
           </Link>
           
           <Link
+            to="/premium"
+            onClick={() => setMenuOpen(false)}
+          >
+            <GlassmorphicCard 
+              className="h-full p-6 flex flex-col items-center justify-center text-center hover:scale-105 transition-all duration-300" 
+              variant={theme === "dark" ? "dark" : "light"}
+              hoverEffect
+            >
+              <Crown size={28} className="text-[#FFD700] mb-3 animate-pulse" />
+              <span className="text-lg font-medium">Premium</span>
+            </GlassmorphicCard>
+          </Link>
+          
+          <Link
             to="/referral"
             onClick={() => setMenuOpen(false)}
           >
@@ -190,7 +293,7 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
       <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Mobile Menu Button */}
         <button
-          className={`menu-button text-foreground p-2 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/20" : "bg-purple-100/80"} backdrop-blur-md will-change-transform`}
+          className={`menu-button text-foreground p-2 rounded-full ${theme === "dark" ? "bg-[#6A1B9A]/20" : "bg-purple-100/80"} backdrop-blur-md will-change-transform md:hidden`}
           onClick={() => {
             setMenuOpen(!menuOpen);
             setShowNotifications(false);
@@ -200,14 +303,17 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        <div className="flex items-center justify-center flex-1">
+        <div className="flex items-center">
           <Link
             to="/"
-            className="text-2xl font-bold purple-gradient-text animate-pulse-slow relative"
+            className="text-2xl font-bold purple-gradient-text animate-pulse-slow relative mr-8"
           >
             Nebula
             <span className={`absolute -inset-1 ${theme === "dark" ? "bg-[#6A1B9A]/20" : "bg-purple-200/50"} blur-xl rounded-full -z-10`}></span>
           </Link>
+          
+          {/* Desktop Navigation */}
+          <DesktopMenu />
         </div>
 
         {/* Right Side Actions */}
@@ -266,6 +372,18 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
                 </GlassmorphicCard>
               </div>
             )}
+          </div>
+          
+          {/* Premium Button */}
+          <div className="hidden md:block">
+            <Link to="/premium">
+              <AnimatedButton 
+                size="sm" 
+                className="bg-gradient-to-r from-[#6A1B9A] to-[#FF10F0] text-white hover:from-[#6A1B9A]/90 hover:to-[#FF10F0]/90 hover:shadow-md transition-shadow"
+              >
+                <Crown className="mr-1 h-4 w-4" /> Premium
+              </AnimatedButton>
+            </Link>
           </div>
         </div>
       </div>
