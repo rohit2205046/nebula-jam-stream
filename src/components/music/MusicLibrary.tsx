@@ -9,6 +9,12 @@ const MusicLibrary = () => {
   const libraryHook = useMusicLibrary();
   const { showUploadModal, setShowUploadModal, handleAddSong, handleUploadSong } = libraryHook;
   
+  console.log("MusicLibrary rendering with libraryHook:", {
+    songCount: libraryHook.songs.length,
+    playlistCount: libraryHook.playlists.length,
+    activeTab: libraryHook.activeTab
+  });
+  
   return (
     <div className="w-full max-w-7xl mx-auto px-4 pt-8 pb-32">
       <LibraryTabs library={libraryHook} />

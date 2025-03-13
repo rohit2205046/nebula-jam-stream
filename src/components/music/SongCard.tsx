@@ -38,6 +38,7 @@ const SongCard: React.FC<SongCardProps> = ({
         isLiked
       };
       
+      console.log("Dispatching play-song event with data:", songData);
       window.dispatchEvent(new CustomEvent('play-song', { 
         detail: songData 
       }));

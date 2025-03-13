@@ -21,6 +21,17 @@ export const useMusicLibrary = () => {
     const fetchSongsFromSupabase = async () => {
       setIsLoading(true);
       try {
+        // First check if the 'songs' folder exists in the 'Music' bucket
+        const { data: folderCheck, error: folderError } = await supabase
+          .storage
+          .from('Music')
+          .list('', {
+            search: 'songs'
+          });
+        
+        console.log("Folder check:", folderCheck, folderError);
+        
+        // Then list files in the folder
         const { data, error } = await supabase
           .storage
           .from('Music')
@@ -28,11 +39,14 @@ export const useMusicLibrary = () => {
             sortBy: { column: 'name', order: 'asc' },
           });
 
+        console.log("Files in folder:", data, error);
+
         if (error) {
+          console.error("Error fetching songs:", error);
           throw error;
         }
 
-        if (data) {
+        if (data && data.length > 0) {
           // Process the files and add them to the songs list
           const supabaseSongs = await Promise.all(
             data
@@ -42,6 +56,8 @@ export const useMusicLibrary = () => {
                 const { data: songUrl } = supabase.storage
                   .from('Music')
                   .getPublicUrl(`songs/${file.name}`);
+
+                console.log("Song URL:", songUrl);
 
                 // Try to find a matching image file (same name but with image extension)
                 const songName = file.name.replace('.mp3', '');
@@ -66,7 +82,7 @@ export const useMusicLibrary = () => {
                 }
 
                 return {
-                  id: file.id,
+                  id: file.id || Math.random().toString(36).substring(2, 9),
                   title: songName.replace(/_/g, ' '),
                   artist: 'Unknown Artist',
                   audioUrl: songUrl.publicUrl,
@@ -75,6 +91,8 @@ export const useMusicLibrary = () => {
                 };
               })
           );
+
+          console.log("Processed Supabase songs:", supabaseSongs);
 
           setSongs(prevSongs => {
             // Combine with existing mock songs but avoid duplicates
@@ -86,6 +104,8 @@ export const useMusicLibrary = () => {
             });
             return allSongs;
           });
+        } else {
+          console.log("No songs found in Supabase or empty response");
         }
       } catch (error) {
         console.error('Error fetching songs from Supabase:', error);
@@ -181,6 +201,7 @@ export const useMusicLibrary = () => {
         if (playlist.id === playlistId) {
           const songToAdd = songs.find(s => s.id === songId);
           if (songToAdd && !playlist.songs.some(s => s.id === songId)) {
+            console.log(`Adding song ${songId} to playlist ${playlistId}`);
             return {
               ...playlist,
               songs: [...playlist.songs, songToAdd]
