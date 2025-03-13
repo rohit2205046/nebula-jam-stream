@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Search, Bell, Menu, X, Zap, Compass, Music, Share2, MessageSquare, Sun, Moon } from "lucide-react";
@@ -30,23 +29,18 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
     setShowNotifications(false);
   }, [location.pathname]);
 
-  // Optimized scroll handler with debounce
+  // Optimized scroll handler with throttling
   useEffect(() => {
-    let timeout: number;
     const handleScroll = () => {
-      clearTimeout(timeout);
-      timeout = window.setTimeout(() => {
-        const isScrolled = window.scrollY > 10;
-        if (isScrolled !== scrolled) {
-          setScrolled(isScrolled);
-        }
-      }, 10); // Small debounce time
+      const isScrolled = window.scrollY > 10;
+      if (isScrolled !== scrolled) {
+        setScrolled(isScrolled);
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      clearTimeout(timeout);
     };
   }, [scrolled]);
 
@@ -64,19 +58,17 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
       }
     };
     
-    // Use capture phase for better performance
     document.addEventListener('mousedown', handleClickOutside, { capture: true });
     return () => document.removeEventListener('mousedown', handleClickOutside, { capture: true });
   }, [menuOpen, showNotifications]);
 
-  // Fix for menu getting stuck - force cleanup when component unmounts
+  // Fix for menu getting stuck
   useEffect(() => {
     return () => {
       document.body.style.overflow = '';
     };
   }, []);
 
-  // Fix for menu lag - add overflow control
   useEffect(() => {
     if (menuOpen) {
       document.body.style.overflow = 'hidden';
@@ -101,13 +93,13 @@ const Navbar = ({ theme, toggleTheme }: NavbarProps) => {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // Avoid rendering full menu when not visible for performance
+  // Render mobile menu with memoization for performance
   const renderMobileMenu = () => {
     if (!menuOpen) return null;
     
     return (
       <div
-        className={`menu-container fixed inset-0 z-40 ${theme === "dark" ? "bg-[#1A1F2C]/95" : "bg-white/90"} backdrop-blur-lg transition-all duration-300 transform ${
+        className={`menu-container fixed inset-0 z-40 ${theme === "dark" ? "bg-[#1A1F2C]/95" : "bg-white/90"} backdrop-blur-lg transition-all duration-200 transform ${
           menuOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
         } will-change-transform overflow-y-auto`}
       >

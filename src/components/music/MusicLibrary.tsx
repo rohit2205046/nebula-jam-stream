@@ -1,9 +1,12 @@
+
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SongCard from "./SongCard";
 import AnimatedButton from "../ui/AnimatedButton";
 import AddSong from "./AddSong";
-import { Heart, Clock, ListMusic, Plus, Disc } from "lucide-react";
+import UploadSong from "./UploadSong";
+import { Heart, Clock, ListMusic, Plus, Disc, Upload } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 // Expanded mock data with more songs and free music URLs
 const mockSongs = [
@@ -235,6 +238,7 @@ const MusicLibrary = () => {
   );
   
   const [activeTab, setActiveTab] = useState("all");
+  const [showUploadModal, setShowUploadModal] = useState(false);
   
   const handleToggleLike = (songId: string) => {
     const updatedSongs = songs.map((song) => {
@@ -246,6 +250,14 @@ const MusicLibrary = () => {
     
     setSongs(updatedSongs);
     setLikedSongs(updatedSongs.filter((song) => song.isLiked));
+    
+    const song = updatedSongs.find(s => s.id === songId);
+    if (song) {
+      toast({
+        title: song.isLiked ? "Removed from Liked Songs" : "Added to Liked Songs",
+        description: `${song.title} by ${song.artist}`,
+      });
+    }
   };
   
   const handlePlaySong = (songId: string) => {
@@ -280,11 +292,26 @@ const MusicLibrary = () => {
   
   const handleAddSong = (newSong: any) => {
     setSongs(prevSongs => [...prevSongs, newSong]);
+    toast({
+      title: "Song added",
+      description: `${newSong.title} has been added to your library`,
+    });
+  };
+  
+  const handleUploadSong = (newSong: any) => {
+    setSongs(prevSongs => [...prevSongs, newSong]);
+    toast({
+      title: "Song uploaded",
+      description: `${newSong.title} has been added to your library`,
+    });
   };
   
   const createPlaylist = () => {
     // This would create a new playlist in a real app
-    console.log("Creating new playlist");
+    toast({
+      title: "Creating new playlist",
+      description: "This feature is coming soon!",
+    });
   };
 
   // Filter songs by tab
@@ -315,15 +342,27 @@ const MusicLibrary = () => {
             </TabsTrigger>
           </TabsList>
           
-          <AnimatedButton 
-            variant="ghost" 
-            size="sm" 
-            className="flex items-center gap-2"
-            onClick={createPlaylist}
-          >
-            <Plus size={16} />
-            <span>New Playlist</span>
-          </AnimatedButton>
+          <div className="flex gap-2">
+            <AnimatedButton 
+              variant="ghost" 
+              size="sm" 
+              className="flex items-center gap-2"
+              onClick={() => setShowUploadModal(true)}
+            >
+              <Upload size={16} />
+              <span className="hidden sm:inline">Upload</span>
+            </AnimatedButton>
+            
+            <AnimatedButton 
+              variant="ghost" 
+              size="sm" 
+              className="flex items-center gap-2"
+              onClick={createPlaylist}
+            >
+              <Plus size={16} />
+              <span className="hidden sm:inline">New Playlist</span>
+            </AnimatedButton>
+          </div>
         </div>
         
         <TabsContent value="all" className="mt-0 animate-fade-in">
@@ -344,54 +383,81 @@ const MusicLibrary = () => {
         
         <TabsContent value="liked" className="mt-0 animate-fade-in">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-            {likedSongs.map((song) => (
-              <SongCard
-                key={song.id}
-                title={song.title}
-                artist={song.artist}
-                coverImage={song.coverImage}
-                isLiked={song.isLiked}
-                onPlay={() => handlePlaySong(song.id)}
-                onToggleLike={() => handleToggleLike(song.id)}
-              />
-            ))}
+            {likedSongs.length > 0 ? (
+              likedSongs.map((song) => (
+                <SongCard
+                  key={song.id}
+                  title={song.title}
+                  artist={song.artist}
+                  coverImage={song.coverImage}
+                  isLiked={song.isLiked}
+                  onPlay={() => handlePlaySong(song.id)}
+                  onToggleLike={() => handleToggleLike(song.id)}
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-10">
+                <p className="text-muted-foreground">No liked songs yet. Heart a song to add it here!</p>
+              </div>
+            )}
           </div>
         </TabsContent>
         
         <TabsContent value="recent" className="mt-0 animate-fade-in">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-            {recentlyPlayed.map((song) => (
-              <SongCard
-                key={song.id}
-                title={song.title}
-                artist={song.artist}
-                coverImage={song.coverImage}
-                isLiked={song.isLiked}
-                onPlay={() => handlePlaySong(song.id)}
-                onToggleLike={() => handleToggleLike(song.id)}
-              />
-            ))}
+            {recentlyPlayed.length > 0 ? (
+              recentlyPlayed.map((song) => (
+                <SongCard
+                  key={song.id}
+                  title={song.title}
+                  artist={song.artist}
+                  coverImage={song.coverImage}
+                  isLiked={song.isLiked}
+                  onPlay={() => handlePlaySong(song.id)}
+                  onToggleLike={() => handleToggleLike(song.id)}
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-10">
+                <p className="text-muted-foreground">Start playing songs to see them here!</p>
+              </div>
+            )}
           </div>
         </TabsContent>
 
         <TabsContent value="fifties" className="mt-0 animate-fade-in">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-            {getFifties().map((song) => (
-              <SongCard
-                key={song.id}
-                title={song.title}
-                artist={song.artist}
-                coverImage={song.coverImage}
-                isLiked={song.isLiked}
-                onPlay={() => handlePlaySong(song.id)}
-                onToggleLike={() => handleToggleLike(song.id)}
-              />
-            ))}
+            {getFifties().length > 0 ? (
+              getFifties().map((song) => (
+                <SongCard
+                  key={song.id}
+                  title={song.title}
+                  artist={song.artist}
+                  coverImage={song.coverImage}
+                  isLiked={song.isLiked}
+                  onPlay={() => handlePlaySong(song.id)}
+                  onToggleLike={() => handleToggleLike(song.id)}
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-10">
+                <p className="text-muted-foreground">No 1950s songs available</p>
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>
       
       <AddSong onAddSong={handleAddSong} />
+      
+      {showUploadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <UploadSong 
+            onSongUploaded={handleUploadSong} 
+            onClose={() => setShowUploadModal(false)} 
+          />
+        </div>
+      )}
     </div>
   );
 };
