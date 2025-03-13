@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Play, Heart } from "lucide-react";
+import { Play } from "lucide-react";
 import GlassmorphicCard from "@/components/ui/GlassmorphicCard";
 
 interface SongCardProps {
@@ -9,7 +9,8 @@ interface SongCardProps {
   coverImage: string;
   isLiked?: boolean;
   onPlay?: () => void;
-  onToggleLike?: () => void;
+  onAddToPlaylist?: React.ReactNode;
+  onRemoveFromPlaylist?: React.ReactNode;
   audioUrl?: string;
 }
 
@@ -19,7 +20,8 @@ const SongCard: React.FC<SongCardProps> = ({
   coverImage,
   isLiked = false,
   onPlay,
-  onToggleLike,
+  onAddToPlaylist,
+  onRemoveFromPlaylist,
   audioUrl,
 }) => {
   const handlePlay = () => {
@@ -67,14 +69,10 @@ const SongCard: React.FC<SongCardProps> = ({
           <h3 className="font-medium text-sm truncate">{title}</h3>
           <p className="text-xs text-muted-foreground truncate">{artist}</p>
         </div>
-        <button
-          onClick={onToggleLike}
-          className={`mt-1 transition-all duration-300 ${
-            isLiked ? "text-red-500 love-bounce" : "text-muted-foreground hover:text-red-500"
-          }`}
-        >
-          <Heart size={16} fill={isLiked ? "currentColor" : "none"} className={isLiked ? "animate-pulse" : ""} />
-        </button>
+        <div className="flex gap-1">
+          {onAddToPlaylist}
+          {onRemoveFromPlaylist}
+        </div>
       </div>
     </GlassmorphicCard>
   );
