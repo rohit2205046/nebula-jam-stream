@@ -45,7 +45,6 @@ const SongGrid: React.FC<SongGridProps> = ({
           title={song.title}
           artist={song.artist}
           coverImage={song.coverImage}
-          isLiked={song.isLiked}
           onPlay={() => onPlay(song.id)}
           onAddToPlaylist={
             playlists.length > 0 ? (
@@ -80,6 +79,7 @@ const SongGrid: React.FC<SongGridProps> = ({
               </Button>
             ) : null
           }
+          audioUrl={song.audioUrl}
         />
       ))}
     </div>

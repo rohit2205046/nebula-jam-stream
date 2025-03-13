@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { mockSongs, fifties, vintageSongs, Song } from "../data/mockData";
@@ -86,8 +85,7 @@ export const useMusicLibrary = () => {
                   title: songName.replace(/_/g, ' '),
                   artist: 'Unknown Artist',
                   audioUrl: songUrl.publicUrl,
-                  coverImage: coverImageUrl,
-                  isLiked: false
+                  coverImage: coverImageUrl
                 };
               })
           );
