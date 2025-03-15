@@ -26,16 +26,35 @@ const SongCard: React.FC<SongCardProps> = ({
     if (onPlay) {
       onPlay();
     } else if (audioUrl) {
-      // Create a custom event to play this song directly
+      // Create a unique ID for this song if it's played directly
+      const songId = `song-${Math.random().toString(36).substring(2, 9)}`;
+      
+      // Create a song object for the player
       const songData = {
-        id: Math.random().toString(36).substring(2, 9), // Generate random ID if not provided
+        id: songId,
         title,
         artist,
-        coverImage,
-        audioUrl
+        coverImage: coverImage || 'https://images.unsplash.com/photo-1614149162883-504ce4d13909',
+        audioUrl,
+        isLiked: false,
+        
+        // Add a simple playlist context for next/previous functionality
+        playlist: {
+          songs: [{
+            id: songId,
+            title,
+            artist,
+            coverImage: coverImage || 'https://images.unsplash.com/photo-1614149162883-504ce4d13909',
+            audioUrl,
+            isLiked: false,
+          }],
+          currentIndex: 0
+        }
       };
       
       console.log("Dispatching play-song event with data:", songData);
+      
+      // Dispatch event to play this song
       window.dispatchEvent(new CustomEvent('play-song', { 
         detail: songData 
       }));
@@ -49,9 +68,13 @@ const SongCard: React.FC<SongCardProps> = ({
     >
       <div className="relative aspect-square overflow-hidden rounded-lg mb-3">
         <img
-          src={coverImage}
+          src={coverImage || 'https://images.unsplash.com/photo-1614149162883-504ce4d13909'}
           alt={`${title} by ${artist}`}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          onError={(e) => {
+            // If image fails to load, use a fallback
+            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1614149162883-504ce4d13909';
+          }}
         />
         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
           <button

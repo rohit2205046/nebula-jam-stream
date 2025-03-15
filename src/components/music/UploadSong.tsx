@@ -4,6 +4,7 @@ import { Upload, X, Music, Image as ImageIcon, Sparkles } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import AnimatedButton from "@/components/ui/AnimatedButton";
 import GlassmorphicCard from "@/components/ui/GlassmorphicCard";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UploadSongProps {
   onSongUploaded: (song: {
@@ -81,9 +82,8 @@ const UploadSong: React.FC<UploadSongProps> = ({ onSongUploaded, onClose }) => {
   const generateAICover = () => {
     setIsGeneratingCover(true);
     
-    // Simulate AI cover generation with a timeout
+    // Generate AI cover - for now we'll use a selection from predefined options
     setTimeout(() => {
-      // Select a random cover from options
       const randomIndex = Math.floor(Math.random() * aiCoverOptions.length);
       const generatedCover = aiCoverOptions[randomIndex];
       
@@ -112,35 +112,116 @@ const UploadSong: React.FC<UploadSongProps> = ({ onSongUploaded, onClose }) => {
     setIsUploading(true);
     
     try {
-      // In a real app, you would upload files to server/storage here
-      // For now, we'll simulate the upload process with a timeout
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Create a storage bucket if it doesn't exist yet
+      try {
+        const { data: bucketData, error: bucketError } = await supabase
+          .storage
+          .createBucket('songs', {
+            public: true,
+            allowedMimeTypes: ['audio/mpeg', 'audio/wav', 'image/jpeg', 'image/png', 'image/webp'],
+            fileSizeLimit: 50000000 // 50MB
+          });
+        
+        if (bucketError) {
+          console.log("Bucket might already exist or error:", bucketError);
+        }
+      } catch (err) {
+        console.log("Bucket creation skipped, might already exist:", err);
+      }
       
-      // Create object URLs for the files
-      const audioUrl = URL.createObjectURL(songFile);
+      // Generate a clean filename from the title
+      const cleanTitle = title.toLowerCase().replace(/[^a-z0-9]/g, '_');
+      const timestamp = Date.now();
       
-      // If no cover image was provided or generated, use a random one from our options
-      const imageUrl = coverPreview 
-        ? coverPreview 
-        : aiCoverOptions[Math.floor(Math.random() * aiCoverOptions.length)];
+      // Upload the song file
+      let audioUrl = "";
+      if (songFile) {
+        const songFileName = `${cleanTitle}_${timestamp}.${songFile.name.split('.').pop()}`;
+        const { data: songData, error: songError } = await supabase
+          .storage
+          .from('songs')
+          .upload(songFileName, songFile, {
+            cacheControl: '3600',
+            upsert: true
+          });
+        
+        if (songError) {
+          throw songError;
+        }
+        
+        // Get the public URL for the song
+        const { data: publicSongData } = supabase
+          .storage
+          .from('songs')
+          .getPublicUrl(songFileName);
+        
+        audioUrl = publicSongData.publicUrl;
+      }
       
+      // Upload or use AI cover image
+      let coverImageUrl = "";
+      
+      if (coverFile) {
+        // Upload user-provided cover
+        const coverFileName = `${cleanTitle}_cover_${timestamp}.${coverFile.name.split('.').pop()}`;
+        const { data: coverData, error: coverError } = await supabase
+          .storage
+          .from('songs')
+          .upload(coverFileName, coverFile, {
+            cacheControl: '3600',
+            upsert: true
+          });
+        
+        if (coverError) {
+          throw coverError;
+        }
+        
+        // Get the public URL for the cover
+        const { data: publicCoverData } = supabase
+          .storage
+          .from('songs')
+          .getPublicUrl(coverFileName);
+        
+        coverImageUrl = publicCoverData.publicUrl;
+      } else if (coverPreview && coverPreview.startsWith('http')) {
+        // Use AI-generated or selected cover URL directly
+        coverImageUrl = coverPreview;
+      } else {
+        // Use a random cover from our options if no cover was provided or generated
+        coverImageUrl = aiCoverOptions[Math.floor(Math.random() * aiCoverOptions.length)];
+      }
+      
+      // Store the song metadata in the database
+      const { data: songRecord, error: dbError } = await supabase
+        .from('songs')
+        .insert([
+          {
+            title,
+            artist,
+            audio_url: audioUrl,
+            cover_url: coverImageUrl
+          }
+        ])
+        .select();
+      
+      if (dbError) {
+        console.error("Database error:", dbError);
+        // Continue even if database storage fails
+      }
+      
+      // Create the song object to return
       const newSong = {
-        id: `upload-${Date.now()}`,
+        id: songRecord && songRecord[0] ? songRecord[0].id : `upload-${timestamp}`,
         title,
         artist,
-        coverImage: imageUrl,
+        coverImage: coverImageUrl,
         audioUrl,
         isLiked: false
       };
       
-      // Upload to Supabase storage if available
-      try {
-        // Here we would upload to Supabase
-        console.log("Uploading to storage:", newSong);
-      } catch (error) {
-        console.error("Storage upload error:", error);
-      }
+      console.log("Uploaded song:", newSong);
       
+      // Add to the user's library
       onSongUploaded(newSong);
       
       toast({
@@ -150,6 +231,7 @@ const UploadSong: React.FC<UploadSongProps> = ({ onSongUploaded, onClose }) => {
       
       onClose();
     } catch (error) {
+      console.error("Upload error:", error);
       toast({
         title: "Upload failed",
         description: "There was an error uploading your song. Please try again.",
