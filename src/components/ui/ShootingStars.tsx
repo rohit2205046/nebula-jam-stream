@@ -1,9 +1,13 @@
 
 import React from 'react';
 
-const ShootingStars = () => {
+interface ShootingStarsProps {
+  className?: string;
+}
+
+const ShootingStars: React.FC<ShootingStarsProps> = ({ className = '' }) => {
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div className={`fixed inset-0 overflow-hidden pointer-events-none z-0 ${className}`}>
       <style>
         {`
           .shooting-star {
