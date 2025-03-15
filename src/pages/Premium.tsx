@@ -4,7 +4,7 @@ import Navbar from "@/components/layout/Navbar";
 import MusicPlayer from "@/components/layout/MusicPlayer";
 import GlassmorphicCard from "@/components/ui/GlassmorphicCard";
 import AnimatedButton from "@/components/ui/AnimatedButton";
-import { Check, Crown, Star, Gem, Share2, Sparkles, Music, Zap } from "lucide-react";
+import { Check, Crown, Star, Gem, Share2, Sparkles, Music, Zap, Users, GraduationCap, User } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import ReferralCodeDisplay from "@/components/social/ReferralCodeDisplay";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -52,13 +52,43 @@ const Premium = () => {
       referralFeature: false
     },
     {
+      name: "Individual",
+      icon: <User className="w-8 h-8 text-[#FF10F0]" />,
+      price: "₹60",
+      period: "month",
+      color: "from-[#FF10F0] to-[#9C27B0]",
+      features: [
+        "Everything in Basic",
+        "One account",
+        "Personalized recommendations",
+        "Create unlimited playlists",
+        "Priority customer support"
+      ],
+      referralFeature: true
+    },
+    {
+      name: "Student",
+      icon: <GraduationCap className="w-8 h-8 text-[#FF10F0]" />,
+      price: "₹40",
+      period: "month",
+      color: "from-blue-400 to-indigo-600",
+      features: [
+        "Everything in Individual",
+        "Special student pricing",
+        "Verified student status required",
+        "Valid for 1 year (renewable)",
+        "Access to exclusive student events"
+      ],
+      referralFeature: true
+    },
+    {
       name: "Pro",
       icon: <Star className="w-8 h-8 text-[#FFD700]" />,
       price: "₹799",
       period: "month",
       color: "from-[#6A1B9A] to-[#FF10F0]",
       features: [
-        "Everything in Basic",
+        "Everything in Individual",
         "Exclusive content",
         "Multi-device streaming",
         "Early access to new features",
@@ -68,13 +98,29 @@ const Premium = () => {
       popular: true
     },
     {
+      name: "Family",
+      icon: <Users className="w-8 h-8 text-[#FFD700]" />,
+      price: "₹899",
+      period: "month",
+      color: "from-[#4CAF50] to-[#009688]",
+      features: [
+        "Up to 6 Premium accounts",
+        "Family Mix playlist",
+        "Block explicit music option",
+        "Shared payment method",
+        "Each account has separate logins",
+        "All Premium benefits for each member"
+      ],
+      referralFeature: true
+    },
+    {
       name: "Ultimate",
       icon: <Crown className="w-8 h-8 text-[#FFD700]" />,
       price: "₹1,199",
       period: "month",
       color: "from-[#FFD700] to-[#FF10F0]",
       features: [
-        "Everything in Pro",
+        "Everything in Pro and Family",
         "Unlimited shared listening sessions",
         "Host group listening parties",
         "AI-powered recommendations",
@@ -107,13 +153,20 @@ const Premium = () => {
         </div>
         
         {/* Subscription Plans */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           {plans.map((plan) => (
             <div key={plan.name} className="relative">
               {plan.popular && (
                 <div className="absolute -top-4 left-0 right-0 flex justify-center">
                   <span className="bg-[#FF10F0] text-white px-4 py-1 rounded-full text-xs font-bold flex items-center">
                     <Sparkles size={12} className="mr-1" /> Most Popular
+                  </span>
+                </div>
+              )}
+              {plan.name === "Student" && (
+                <div className="absolute -top-4 left-0 right-0 flex justify-center">
+                  <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-xs font-bold flex items-center">
+                    <GraduationCap size={12} className="mr-1" /> Student Discount
                   </span>
                 </div>
               )}

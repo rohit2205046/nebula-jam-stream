@@ -10,6 +10,7 @@ import Hero from "@/components/home/Hero";
 import SongCard from "@/components/music/SongCard";
 import { mockSongs } from "@/components/music/data/mockData";
 import { useIsMobile } from "@/hooks/use-mobile";
+import OpenSourcePlaylist from "@/components/music/OpenSourcePlaylist";
 
 const Index = () => {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
@@ -63,6 +64,16 @@ const Index = () => {
               />
             ))}
           </div>
+        </div>
+        
+        {/* Open Source Music Section */}
+        <div className="mb-12">
+          <h2 className="text-xl md:text-2xl font-bold mb-6 flex items-center">
+            <Music className="w-6 h-6 text-[#FF10F0] mr-2" />
+            Open Source Music
+          </h2>
+          
+          <OpenSourcePlaylist />
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">

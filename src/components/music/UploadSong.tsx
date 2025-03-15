@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from "react";
-import { Upload, X, Music, Image as ImageIcon } from "lucide-react";
+import { Upload, X, Music, Image as ImageIcon, Sparkles } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import AnimatedButton from "@/components/ui/AnimatedButton";
 import GlassmorphicCard from "@/components/ui/GlassmorphicCard";
@@ -24,9 +24,19 @@ const UploadSong: React.FC<UploadSongProps> = ({ onSongUploaded, onClose }) => {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isGeneratingCover, setIsGeneratingCover] = useState(false);
   
   const songInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
+
+  // AI-generated cover art options
+  const aiCoverOptions = [
+    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3",
+    "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3",
+    "https://images.unsplash.com/photo-1504898770365-14faca6a7320?q=80&w=2298&auto=format&fit=crop&ixlib=rb-4.0.3",
+    "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3",
+    "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3"
+  ];
 
   const handleSongSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -68,6 +78,25 @@ const UploadSong: React.FC<UploadSongProps> = ({ onSongUploaded, onClose }) => {
     }
   };
 
+  const generateAICover = () => {
+    setIsGeneratingCover(true);
+    
+    // Simulate AI cover generation with a timeout
+    setTimeout(() => {
+      // Select a random cover from options
+      const randomIndex = Math.floor(Math.random() * aiCoverOptions.length);
+      const generatedCover = aiCoverOptions[randomIndex];
+      
+      setCoverPreview(generatedCover);
+      setIsGeneratingCover(false);
+      
+      toast({
+        title: "Cover generated",
+        description: "AI-generated cover has been created for your song."
+      });
+    }, 1500);
+  };
+
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -89,9 +118,11 @@ const UploadSong: React.FC<UploadSongProps> = ({ onSongUploaded, onClose }) => {
       
       // Create object URLs for the files
       const audioUrl = URL.createObjectURL(songFile);
-      const imageUrl = coverFile 
-        ? URL.createObjectURL(coverFile)
-        : "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3";
+      
+      // If no cover image was provided or generated, use a random one from our options
+      const imageUrl = coverPreview 
+        ? coverPreview 
+        : aiCoverOptions[Math.floor(Math.random() * aiCoverOptions.length)];
       
       const newSong = {
         id: `upload-${Date.now()}`,
@@ -101,6 +132,14 @@ const UploadSong: React.FC<UploadSongProps> = ({ onSongUploaded, onClose }) => {
         audioUrl,
         isLiked: false
       };
+      
+      // Upload to Supabase storage if available
+      try {
+        // Here we would upload to Supabase
+        console.log("Uploading to storage:", newSong);
+      } catch (error) {
+        console.error("Storage upload error:", error);
+      }
       
       onSongUploaded(newSong);
       
@@ -142,6 +181,7 @@ const UploadSong: React.FC<UploadSongProps> = ({ onSongUploaded, onClose }) => {
             onChange={(e) => setTitle(e.target.value)}
             className="w-full p-2 bg-secondary/50 rounded-md border border-[#6A1B9A]/20 focus:border-[#FF10F0] focus:ring-1 focus:ring-[#FF10F0] outline-none"
             placeholder="Song title"
+            required
           />
         </div>
         
@@ -153,6 +193,7 @@ const UploadSong: React.FC<UploadSongProps> = ({ onSongUploaded, onClose }) => {
             onChange={(e) => setArtist(e.target.value)}
             className="w-full p-2 bg-secondary/50 rounded-md border border-[#6A1B9A]/20 focus:border-[#FF10F0] focus:ring-1 focus:ring-[#FF10F0] outline-none"
             placeholder="Artist name"
+            required
           />
         </div>
         
@@ -186,7 +227,18 @@ const UploadSong: React.FC<UploadSongProps> = ({ onSongUploaded, onClose }) => {
         </div>
         
         <div>
-          <label className="block text-sm font-medium mb-1">Cover Image (Optional)</label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="block text-sm font-medium">Cover Image (Optional)</label>
+            <button
+              type="button"
+              onClick={generateAICover}
+              className="text-xs text-[#FF10F0] flex items-center hover:underline"
+              disabled={isGeneratingCover}
+            >
+              <Sparkles size={12} className="mr-1" />
+              {isGeneratingCover ? 'Generating...' : 'Generate with AI'}
+            </button>
+          </div>
           <input
             type="file"
             ref={coverInputRef}
@@ -210,7 +262,7 @@ const UploadSong: React.FC<UploadSongProps> = ({ onSongUploaded, onClose }) => {
             ) : (
               <>
                 <ImageIcon className="mb-2 text-[#6A1B9A]/60" size={24} />
-                <span className="text-sm text-center">Click to select cover image</span>
+                <span className="text-sm text-center">Click to select cover image or use AI</span>
               </>
             )}
           </div>
