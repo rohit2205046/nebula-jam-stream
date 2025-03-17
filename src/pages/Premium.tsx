@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import MusicPlayer from "@/components/layout/MusicPlayer";
 import GlassmorphicCard from "@/components/ui/GlassmorphicCard";
@@ -9,20 +9,12 @@ import { toast } from "@/components/ui/use-toast";
 import ReferralCodeDisplay from "@/components/social/ReferralCodeDisplay";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
-import StripePaymentForm from "@/components/payment/StripePaymentForm";
-import { useUser } from "@clerk/clerk-react";
-import { supabase } from "@/integrations/supabase/client";
 
 const Premium = () => {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { user, isSignedIn } = useUser();
 
   // Toggle theme function
   const toggleTheme = () => {
@@ -32,60 +24,16 @@ const Premium = () => {
   };
 
   // Set initial theme
-  useEffect(() => {
+  React.useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, []);
 
-  // Check subscription status
-  useEffect(() => {
-    const checkSubscription = async () => {
-      if (isSignedIn && user) {
-        setIsLoading(true);
-        try {
-          const { data, error } = await supabase.functions.invoke("check-subscription", {
-            body: { userId: user.id }
-          });
-
-          if (error) throw error;
-
-          setIsSubscribed(data.isSubscribed);
-          setCurrentPlan(data.subscription?.plan_type || null);
-        } catch (err) {
-          console.error("Error checking subscription:", err);
-          toast({
-            title: "Error",
-            description: "Could not verify subscription status",
-            variant: "destructive"
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        setIsLoading(false);
-      }
-    };
-
-    checkSubscription();
-  }, [isSignedIn, user]);
-
   const handleSubscribe = (plan: string) => {
-    if (!isSignedIn) {
-      toast({
-        title: "Sign in required",
-        description: "Please sign in to subscribe to a premium plan",
-      });
-      navigate("/auth");
-      return;
-    }
-
     setSelectedPlan(plan);
-    setShowPaymentForm(true);
-  };
-
-  const handlePaymentSuccess = () => {
-    setShowPaymentForm(false);
-    setIsSubscribed(true);
-    setCurrentPlan(selectedPlan);
+    toast({
+      title: "Subscription Selected",
+      description: `You've selected the ${plan} plan. Proceed to payment.`,
+    });
   };
 
   const plans = [
@@ -151,15 +99,6 @@ const Premium = () => {
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
             Upgrade your music experience with Nebula Premium and unlock exclusive features.
           </p>
-          
-          {isSubscribed && (
-            <div className="mt-4 inline-block bg-gradient-to-r from-[#6A1B9A] to-[#FF10F0] text-white px-6 py-2 rounded-full">
-              <span className="flex items-center">
-                <Sparkles className="mr-2" size={16} />
-                You're subscribed to {currentPlan} plan
-              </span>
-            </div>
-          )}
         </div>
         
         {/* Subscription Plans */}
@@ -174,7 +113,7 @@ const Premium = () => {
                 </div>
               )}
               <GlassmorphicCard 
-                className={`h-full ${plan.popular ? 'border-2 border-[#FF10F0] scale-105' : ''} ${currentPlan === plan.name ? 'border-2 border-green-500' : ''}`}
+                className={`h-full ${plan.popular ? 'border-2 border-[#FF10F0] scale-105' : ''}`}
                 hoverEffect={true}
               >
                 <div className="text-center mb-4">
@@ -212,28 +151,15 @@ const Premium = () => {
                 
                 <AnimatedButton 
                   variant={plan.popular ? "default" : "outline"} 
-                  className={`w-full ${plan.popular ? 'bg-[#FF10F0] hover:bg-[#FF10F0]/80 text-white' : 'border-[#FF10F0] text-[#FF10F0]'} 
-                    ${currentPlan === plan.name ? 'bg-green-500 hover:bg-green-600 border-green-500 text-white' : ''}`}
+                  className={`w-full ${plan.popular ? 'bg-[#FF10F0] hover:bg-[#FF10F0]/80 text-white' : 'border-[#FF10F0] text-[#FF10F0]'}`}
                   onClick={() => handleSubscribe(plan.name)}
-                  disabled={isLoading || currentPlan === plan.name}
                 >
-                  {isLoading ? 'Loading...' : currentPlan === plan.name ? 'Current Plan' : 'Subscribe'}
+                  {selectedPlan === plan.name ? "Selected" : "Subscribe"}
                 </AnimatedButton>
               </GlassmorphicCard>
             </div>
           ))}
         </div>
-        
-        {/* Show Stripe payment form */}
-        {showPaymentForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <StripePaymentForm 
-              plan={selectedPlan || "Individual"}
-              onSuccess={handlePaymentSuccess}
-              onClose={() => setShowPaymentForm(false)}
-            />
-          </div>
-        )}
         
         {/* Referral Feature Section */}
         <div className="mb-16">
