@@ -3,8 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { ClerkProvider, SignIn, SignedIn, SignedOut } from "@clerk/clerk-react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ClerkProvider } from "@clerk/clerk-react";
 import Index from "./pages/Index";
 import Explore from "./pages/Explore";
 import Library from "./pages/Library";
@@ -37,84 +37,13 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route 
-              path="/" 
-              element={
-                <>
-                  <SignedIn>
-                    <Index />
-                  </SignedIn>
-                  <SignedOut>
-                    <Navigate to="/auth" replace />
-                  </SignedOut>
-                </>
-              } 
-            />
-            <Route 
-              path="/explore" 
-              element={
-                <>
-                  <SignedIn>
-                    <Explore />
-                  </SignedIn>
-                  <SignedOut>
-                    <Navigate to="/auth" replace />
-                  </SignedOut>
-                </>
-              } 
-            />
-            <Route 
-              path="/library" 
-              element={
-                <>
-                  <SignedIn>
-                    <Library />
-                  </SignedIn>
-                  <SignedOut>
-                    <Navigate to="/auth" replace />
-                  </SignedOut>
-                </>
-              } 
-            />
-            <Route 
-              path="/referral" 
-              element={
-                <>
-                  <SignedIn>
-                    <Referral />
-                  </SignedIn>
-                  <SignedOut>
-                    <Navigate to="/auth" replace />
-                  </SignedOut>
-                </>
-              } 
-            />
-            <Route 
-              path="/chat" 
-              element={
-                <>
-                  <SignedIn>
-                    <Chat />
-                  </SignedIn>
-                  <SignedOut>
-                    <Navigate to="/auth" replace />
-                  </SignedOut>
-                </>
-              } 
-            />
-            <Route 
-              path="/premium" 
-              element={
-                <>
-                  <SignedIn>
-                    <Premium />
-                  </SignedIn>
-                  <SignedOut>
-                    <Navigate to="/auth" replace />
-                  </SignedOut>
-                </>
-              } 
-            />
+            {/* Removed SignedIn/SignedOut wrappers to allow direct access */}
+            <Route path="/" element={<Index />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/library" element={<Library />} />
+            <Route path="/referral" element={<Referral />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/premium" element={<Premium />} />
             <Route path="/auth" element={<AuthPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
