@@ -41,6 +41,7 @@ const LibraryTabs: React.FC<LibraryTabsProps> = ({ library }) => {
     getFifties,
     getPlaylistSongs,
     deletePlaylist,
+    refreshSongs,
   } = library;
 
   const [newPlaylistName, setNewPlaylistName] = useState("");

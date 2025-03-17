@@ -11,10 +11,12 @@ import SongCard from "@/components/music/SongCard";
 import { mockSongs } from "@/components/music/data/mockData";
 import { useIsMobile } from "@/hooks/use-mobile";
 import OpenSourcePlaylist from "@/components/music/OpenSourcePlaylist";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
   const isMobile = useIsMobile();
+  const [featuredSongs, setFeaturedSongs] = useState(mockSongs.slice(0, isMobile ? 4 : 6));
   
   // Toggle theme function
   const toggleTheme = () => {
@@ -28,8 +30,40 @@ const Index = () => {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, []);
   
-  // Get featured songs for homepage
-  const featuredSongs = mockSongs.slice(0, isMobile ? 4 : 6);
+  // Fetch uploaded songs for homepage
+  useEffect(() => {
+    const fetchUploadedSongs = async () => {
+      try {
+        const { data: songs, error } = await supabase
+          .from('songs')
+          .select('*')
+          .limit(isMobile ? 4 : 6);
+          
+        if (error) {
+          console.error("Error fetching songs:", error);
+          return;
+        }
+        
+        if (songs && songs.length > 0) {
+          // Process songs into the format our app expects
+          const formattedSongs = songs.map(song => ({
+            id: song.id,
+            title: song.title,
+            artist: song.artist,
+            coverImage: song.cover_url || 'https://images.unsplash.com/photo-1614149162883-504ce4d13909',
+            audioUrl: song.audio_url,
+            isLiked: false
+          }));
+          
+          setFeaturedSongs(formattedSongs);
+        }
+      } catch (err) {
+        console.error("Failed to fetch songs:", err);
+      }
+    };
+    
+    fetchUploadedSongs();
+  }, [isMobile]);
   
   return (
     <div className={`min-h-screen ${theme === "dark" ? "bg-[#1A1F2C]" : "bg-[#f5f3ff]"} overflow-hidden relative transition-colors duration-300`}>

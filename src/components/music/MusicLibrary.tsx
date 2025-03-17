@@ -61,7 +61,7 @@ const MusicLibrary = () => {
     };
     
     fetchSongs();
-  }, []);
+  }, [refreshSongs]); // Adding refreshSongs to dependency array to refresh when songs are uploaded
   
   return (
     <div className="w-full max-w-7xl mx-auto px-4 pt-8 pb-32">
