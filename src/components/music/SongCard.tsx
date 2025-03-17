@@ -1,7 +1,8 @@
 
-import React from "react";
-import { Play } from "lucide-react";
+import React, { useState } from "react";
+import { Play, AlertCircle } from "lucide-react";
 import GlassmorphicCard from "@/components/ui/GlassmorphicCard";
+import { toast } from "@/components/ui/use-toast";
 
 interface SongCardProps {
   title: string;
@@ -22,44 +23,92 @@ const SongCard: React.FC<SongCardProps> = ({
   onRemoveFromPlaylist,
   audioUrl,
 }) => {
+  const [imageError, setImageError] = useState(false);
+  const [audioError, setAudioError] = useState(false);
+  
   const handlePlay = () => {
+    if (audioError) {
+      toast({
+        title: "Playback Error",
+        description: "This song cannot be played. The audio file might be missing or inaccessible.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     if (onPlay) {
       onPlay();
     } else if (audioUrl) {
-      // Create a unique ID for this song if it's played directly
-      const songId = `song-${Math.random().toString(36).substring(2, 9)}`;
-      
-      // Create a song object for the player
-      const songData = {
-        id: songId,
-        title,
-        artist,
-        coverImage: coverImage || 'https://images.unsplash.com/photo-1614149162883-504ce4d13909',
-        audioUrl,
-        isLiked: false,
-        
-        // Add a simple playlist context for next/previous functionality
-        playlist: {
-          songs: [{
+      // Check if the audio URL is valid
+      fetch(audioUrl, { method: 'HEAD' })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Audio file not accessible');
+          }
+          
+          // Create a unique ID for this song if it's played directly
+          const songId = `song-${Math.random().toString(36).substring(2, 9)}`;
+          
+          // Create a song object for the player
+          const songData = {
             id: songId,
             title,
             artist,
-            coverImage: coverImage || 'https://images.unsplash.com/photo-1614149162883-504ce4d13909',
+            coverImage: imageError ? 'https://images.unsplash.com/photo-1614149162883-504ce4d13909' : (coverImage || 'https://images.unsplash.com/photo-1614149162883-504ce4d13909'),
             audioUrl,
             isLiked: false,
-          }],
-          currentIndex: 0
-        }
-      };
-      
-      console.log("Dispatching play-song event with data:", songData);
-      
-      // Dispatch event to play this song
-      window.dispatchEvent(new CustomEvent('play-song', { 
-        detail: songData 
-      }));
+            
+            // Add a simple playlist context for next/previous functionality
+            playlist: {
+              songs: [{
+                id: songId,
+                title,
+                artist,
+                coverImage: imageError ? 'https://images.unsplash.com/photo-1614149162883-504ce4d13909' : (coverImage || 'https://images.unsplash.com/photo-1614149162883-504ce4d13909'),
+                audioUrl,
+                isLiked: false,
+              }],
+              currentIndex: 0
+            }
+          };
+          
+          console.log("Dispatching play-song event with data:", songData);
+          
+          // Dispatch event to play this song
+          window.dispatchEvent(new CustomEvent('play-song', { 
+            detail: songData 
+          }));
+        })
+        .catch(error => {
+          console.error("Error checking audio URL:", error);
+          setAudioError(true);
+          toast({
+            title: "Playback Error",
+            description: "This song cannot be played. The audio file might be missing or inaccessible.",
+            variant: "destructive"
+          });
+        });
     }
   };
+
+  // Preload audio to check if it's playable
+  React.useEffect(() => {
+    if (audioUrl) {
+      const audio = new Audio();
+      audio.addEventListener('error', () => {
+        console.error("Audio load error for:", audioUrl);
+        setAudioError(true);
+      });
+      audio.src = audioUrl;
+      
+      return () => {
+        audio.removeEventListener('error', () => {
+          setAudioError(true);
+        });
+        audio.remove();
+      };
+    }
+  }, [audioUrl]);
 
   return (
     <GlassmorphicCard
@@ -68,22 +117,31 @@ const SongCard: React.FC<SongCardProps> = ({
     >
       <div className="relative aspect-square overflow-hidden rounded-lg mb-3">
         <img
-          src={coverImage || 'https://images.unsplash.com/photo-1614149162883-504ce4d13909'}
+          src={imageError ? 'https://images.unsplash.com/photo-1614149162883-504ce4d13909' : (coverImage || 'https://images.unsplash.com/photo-1614149162883-504ce4d13909')}
           alt={`${title} by ${artist}`}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          onError={(e) => {
-            // If image fails to load, use a fallback
-            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1614149162883-504ce4d13909';
+          onError={() => {
+            setImageError(true);
           }}
         />
         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
           <button
             onClick={handlePlay}
-            className="w-12 h-12 bg-[#6A1B9A] rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 hover:bg-[#6A1B9A]/80 hover:scale-105 transition-all duration-300 shadow-[#6A1B9A]/40 shadow-md animate-bounce-subtle"
+            className={`w-12 h-12 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md ${
+              audioError 
+                ? 'bg-red-500 hover:bg-red-600' 
+                : 'bg-[#6A1B9A] hover:bg-[#6A1B9A]/80 hover:scale-105 shadow-[#6A1B9A]/40 animate-bounce-subtle'
+            }`}
           >
-            <Play size={20} className="ml-1" />
+            {audioError ? <AlertCircle size={20} /> : <Play size={20} className="ml-1" />}
           </button>
         </div>
+        
+        {audioError && (
+          <div className="absolute bottom-0 left-0 right-0 bg-red-500/70 text-white text-xs py-1 px-2 text-center">
+            Audio Unavailable
+          </div>
+        )}
       </div>
       <div className="flex justify-between items-start">
         <div>
