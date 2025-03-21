@@ -37,7 +37,36 @@ const openSourceSongs = [
     duration: "3:47",
     audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
     coverImage: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3"
-  },
+  },// Improved error handling for song playback
+  const handlePlaySong = (song) => {
+    if (!song.audioUrl) {
+          console.error('Audio URL is missing');
+          return;
+    }
+    try {
+          window.dispatchEvent(new CustomEvent('play-song', {
+                  detail: {
+                            id: song.id,
+                            title: song.title,
+                            artist: song.artist,
+                            coverImage: song.coverImage,
+                            audioUrl: song.audioUrl,
+                            isLiked: false
+                  }
+          }));
+    } catch (error) {
+          console.error('Failed to play song:', error);
+    }
+};
+
+// Improved play all function with error handling
+const handlePlayAll = () => {
+    if (openSourceSongs.length > 0) {
+          handlePlaySong(openSourceSongs[0]);
+    } else {
+          console.warn('No songs available to play');
+    }
+};
   {
     id: "os-5",
     title: "Digital Raindrops",
